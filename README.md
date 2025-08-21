@@ -12,4 +12,4 @@ Protótipo **HTML/CSS/JS** para demonstrar a aplicação do **HACCP** em leite U
 
 ## Demo
 
-- **GitHub Pages:** `https://carloaugusto.github.io/HCCP-prototipo-leite/`
+- **Acesso:** `https://carloaugusto.github.io/HCCP-prototipo-leite/`
