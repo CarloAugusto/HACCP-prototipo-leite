@@ -23,7 +23,7 @@ Protótipo **HTML/CSS/JS** para demonstrar a aplicação do **HACCP** em leite U
 ---
 
 ## Como navegar
-1. Use os ícones **1–11** no topo para pular entre as etapas (tooltip mostra o título da etapa).
+1. Use os ícones **1–9** no topo para pular entre as etapas (tooltip mostra o título da etapa).
 2. Em cada etapa, clique nos botões:
    - **Análise de perigos** (modais com tabelas e árvore de decisão)
    - **Ações** (monitoramento, corretivas, verificação)
