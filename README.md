@@ -20,4 +20,16 @@ Protótipo **HTML/CSS/JS** para demonstrar a aplicação do **HACCP** em leite U
 
 <img width="1366" height="643" alt="image" src="https://github.com/user-attachments/assets/3ebfd24d-2695-41a8-9e14-28ca04ef361a" />
 
+---
 
+## Como navegar
+1. Use os ícones **1–11** no topo para pular entre as etapas (tooltip mostra o título da etapa).
+2. Em cada etapa, clique nos botões:
+   - **Análise de perigos** (modais com tabelas e árvore de decisão)
+   - **Ações** (monitoramento, corretivas, verificação)
+3. Etapas com **PCC** exibem um selo **PCC** na própria caixa.
+
+---
+
+## Rodar localmente
+Abra `index.html` no navegador
