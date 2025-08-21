@@ -1,5 +1,4 @@
-# HACCP *Hazard Analysis and Critical Control Points*– Leite UHT (Brasil) #
-
+# HACCP *Hazard Analysis and Critical Control Points*– Leite UHT (Brasil) 
 ---
 ## Protótipo Interativo 
 Protótipo **HTML/CSS/JS** para demonstrar a aplicação do **HACCP** em leite UHT:
