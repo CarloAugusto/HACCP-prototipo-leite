@@ -18,4 +18,6 @@ Protótipo **HTML/CSS/JS** para demonstrar a aplicação do **HACCP** em leite U
 
 <img width="1366" height="643" alt="image" src="https://github.com/user-attachments/assets/e7904343-c12a-4dc0-97d8-b693ea4c2aed" />
 
+<img width="1366" height="643" alt="image" src="https://github.com/user-attachments/assets/3ebfd24d-2695-41a8-9e14-28ca04ef361a" />
+
 
