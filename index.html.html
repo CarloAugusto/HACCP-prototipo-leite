@@ -1,0 +1,2845 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!-- =========================================================
+       HACCP UHT – Modelo de Página (Etapa 1 pronta)
+       ---------------------------------------------------------
+       Este documento consolida:
+       - Estrutura semântica (header/nav/main/footer)
+       - Design Pack (CSS) com dark mode, foco visível, tabelas premium
+       - Controller A11y (JS) para modais (foco preso, retorno de foco, ESC)
+       - Bloco da Etapa 1 com modais ("Análise de perigos" e "Ações")
+       ========================================================= -->
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#111827" />
+  <title>HACCP – Leite UHT | Etapa 1</title>
+
+  <!-- ======================
+       DESIGN PACK (CSS)
+       ====================== -->
+  <style>
+    /* ================================
+       HACCP UHT – Design Pack (UX/A11y)
+       ================================ */
+
+    /* ---- Tokens (cores, tipografia, raios, sombras) ---- */
+    :root{
+      --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --text: #0f172a;           /* slate-900 */
+      --muted: #475569;          /* slate-600 */
+      --border: #e5e7eb;         /* gray-200 */
+      --primary: #1f2937;        /* gray-800 */
+      --primary-contrast: #ffffff;
+      --accent: #007aff;         /* azul acessível */
+      --success-bg: #ecfdf5;     /* green-50 */
+      --success-bd: #10b981;     /* green-500 */
+      --warn-bg: #fffbeb;        /* amber-50 */
+      --warn-bd: #f59e0b;        /* amber-500 */
+      --overlay: rgba(0,0,0,.45);
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.05);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,.20);
+    }
+
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b1220;
+        --surface: #0f172a;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+        --border: #1e293b;
+        --primary: #e5e7eb;
+        --primary-contrast: #0b1220;
+        --accent: #3b82f6;
+        --overlay: rgba(0,0,0,.6);
+        --shadow-sm: 0 1px 3px rgba(0,0,0,.35);
+        --shadow-lg: 0 10px 30px rgba(0,0,0,.6);
+        --success-bg: rgba(16,185,129,.12);
+        --warn-bg: rgba(245,158,11,.12);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ animation: none !important; transition: none !important; }
+    }
+
+    /* ---- Base ---- */
+    html{ color-scheme: light dark; }
+    body{ margin:0; font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.6; }
+
+    /* ---- Acessibilidade: foco visível ---- */
+    :focus-visible{ outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+    /* ---- Utilitários ---- */
+    .sr-only{ position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    .container{ width:min(1200px, 100%); margin-inline:auto; padding-inline:16px; }
+
+    /* ================== Cabeçalho/Topo ================== */
+    header.masthead{
+      border-bottom:1px solid var(--border);
+      background: var(--surface);
+    }
+    header .wrap{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:16px; padding:14px 16px;
+    }
+    .brand{ display:flex; align-items:center; gap:10px; }
+    .brand-logo{
+      width:28px; height:28px; border-radius:8px;
+      background: linear-gradient(135deg, #2563eb, #10b981);
+    }
+    .brand h1{ font-size:1rem; margin:0; letter-spacing:.02em; }
+
+    nav.primary-nav a{
+      text-decoration:none; color:var(--muted); font-size:.95rem; margin-left:12px;
+    }
+    nav.primary-nav a:hover{ color:var(--text); }
+
+    /* ================== Cards/Etapas ================== */
+    .stage-card{
+      border:1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding:16px;
+      margin:16px 0;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+    .stage-card::before{
+      content:"";
+      position:absolute; inset:0 0 auto 0; height:6px;
+      background: linear-gradient(90deg, #2563eb, #10b981 60%, #f59e0b);
+      border-top-left-radius: var(--radius-lg); border-top-right-radius: var(--radius-lg);
+    }
+    .stage-header{
+      display:flex; justify-content:space-between; align-items:baseline; gap:12px;
+      padding-top:6px; /* espaço depois da barra gradiente */
+    }
+    .stage-header h2{ margin:0; font-size: clamp(1.15rem, 1vw + 1rem, 1.4rem); }
+    .stage-tag{ font-size:.85rem; color: var(--muted); }
+
+    .stage-actions{ display:flex; gap:8px; margin-top:12px; flex-wrap: wrap; }
+
+    /* ================== Botões ================== */
+    .btn{
+      padding:10px 14px; border-radius: var(--radius-md);
+      border:1px solid var(--primary); background: var(--primary); color: var(--primary-contrast);
+      cursor:pointer; transition: transform .08s ease, box-shadow .12s ease, background .12s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .btn:active{ transform: translateY(0); box-shadow: none; }
+    .btn.secondary{ background: transparent; color: var(--primary); }
+    .btn.ghost{ background: transparent; border-color: var(--border); color: var(--text); }
+    .btn.danger{ background: #b91c1c; border-color: #7f1d1d; }
+    .btn .ic{ width:1.1em; height:1.1em; vertical-align:-0.15em; margin-right:.4em; }
+
+    /* ================== Tabelas Premium ================== */
+    .table-wrap{ overflow:auto; border:1px solid var(--border); border-radius: var(--radius-lg); }
+    table{ border-collapse: collapse; width: 100%; font-size: .95rem; }
+    thead th{
+      position: sticky; top: 0; z-index: 1;
+      background: color-mix(in oklab, var(--surface), #000 3%); /* leve destaque de cabeçalho */
+      color: var(--muted); text-transform: uppercase; letter-spacing:.02em;
+    }
+    th, td{ padding:12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tbody tr:hover{ background: color-mix(in oklab, var(--surface), #000 2%); }
+
+    /* ================== Badges/Árvore/Notas ================== */
+    .small-note{ font-size:.9rem; color: var(--muted); margin-top:8px }
+    .decision-tree ol{ margin-left:18px }
+    .decision-tree .answer{
+      margin:.25rem 0 .75rem 0; padding:.35rem .6rem; border-radius: 10px;
+      border:1px solid var(--border); background: color-mix(in oklab, var(--surface), #000 3%);
+    }
+    .decision-tree .answer.ok{ border-color: var(--success-bd); background: var(--success-bg); }
+    .decision-tree .answer.warn{ border-color: var(--warn-bd); background: var(--warn-bg); }
+    .badge{
+      display:inline-block; padding:3px 10px; border-radius:999px; background: var(--primary); color: var(--primary-contrast);
+      font-size:.85rem; letter-spacing:.02em;
+    }
+
+    /* ================== Modal (overlay + dialog) ================== */
+    .modal{
+      position: fixed; inset: 0; display: none;
+      align-items: center; justify-content: center;
+      background: var(--overlay); padding: 16px; z-index: 1000;
+    }
+    .modal[aria-hidden="false"]{ display: flex; }
+    .modal-dialog{
+      max-width: 1000px; width: 100%;
+      background: var(--surface); color: var(--text);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden;
+      transform: translateY(10px); opacity: 0;
+      transition: transform .18s ease, opacity .18s ease;
+    }
+    .modal[aria-hidden="false"] .modal-dialog{ transform: translateY(0); opacity: 1; }
+    .modal-header{
+      display:flex; justify-content:space-between; align-items:center;
+      padding: 12px 16px; border-bottom:1px solid var(--border);
+    }
+    .modal-content{ padding: 16px; max-height: 80vh; overflow: auto; }
+    .close{ background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--muted); }
+    .close:hover{ color: var(--text); }
+
+    /* ================== Rodapé ================== */
+    footer.site-footer{
+      border-top:1px solid var(--border);
+      margin-top:32px; padding:16px; color:var(--muted); font-size:.95rem;
+    }
+
+    /* ================== Print (leva conteúdo dos modais) ================== */
+    @media print{
+      .stage-actions, .modal{ display:none !important; }
+      .stage-card{ break-inside: avoid; box-shadow: none; border-color: #bbb; }
+      .table-wrap{ border:1px solid #bbb; }
+    }
+	
+	/* ====== Danger tokens (PCC) ====== */
+:root{
+  --danger: #dc2626;            /* red-600 */
+  --danger-strong: #b91c1c;     /* red-700 */
+  --danger-bg: #fee2e2;         /* red-100 */
+  --danger-ring: rgba(220,38,38,.15);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --danger: #f87171;          /* red-400 */
+    --danger-strong: #ef4444;   /* red-500 */
+    --danger-bg: rgba(248,113,113,.12);
+    --danger-ring: rgba(248,113,113,.2);
+  }
+}
+
+/* Ícone/selo PCC — agora NÃO é botão/clicável */
+.pcc-flag{
+  display:inline-flex; align-items:center; gap:.45rem;
+  padding:4px 10px; border-radius:999px;
+  background: var(--danger-bg);
+  border:1px solid var(--danger);
+  color: var(--danger-strong);
+  font-weight: 700; font-size:.8rem; letter-spacing:.02em;
+  cursor: default;                 /* não parece clicável*/ 
+  user-select: none;
+  transition: transform .08s ease, box-shadow .12s ease, background .12s ease;
+}
+
+.pcc-flag:hover{                   /* cresce e “brilha” no hover */
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 3px var(--danger-ring);
+}
+.pcc-flag svg{ width:1.05em; height:1.05em; }
+
+/* Realce sutil no card que tem PCC */
+.stage-card.has-pcc{
+  border-color: color-mix(in oklab, var(--danger), var(--border) 50%);
+  box-shadow: 0 0 0 2px var(--danger-ring), var(--shadow-sm);
+}
+/* Barrinha superior com toque vermelho quando há PCC */
+.stage-card.has-pcc::before{
+  background: linear-gradient(90deg, var(--danger) 0 18%, #2563eb 18% 60%, #10b981 60% 100%);
+}
+
+/* === Tooltips nos números da navbar === */
+.primary-nav a.step-anchor{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-left: 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--muted);
+  border: 1px solid transparent;
+  transition: transform .08s ease, box-shadow .12s ease, color .12s ease, background .12s ease;
+}
+.primary-nav a.step-anchor:hover,
+.primary-nav a.step-anchor:focus-visible{
+  color: var(--text);
+  background: color-mix(in oklab, var(--surface), #000 5%);
+  border-color: var(--border);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Balão do tooltip */
+.primary-nav a.step-anchor::after{
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 10px); /* aparece abaixo do botão */
+  transform: translateX(-50%) translateY(4px);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  padding: 6px 10px;
+  font-size: .85rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  z-index: 2000;
+  transition: opacity .12s ease, transform .12s ease;
+}
+
+/* Setinha do balão */
+.primary-nav a.step-anchor::before{
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 6px);
+  transform: translateX(-50%);
+  width: 8px; height: 8px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  transform: translateX(-50%) rotate(45deg);
+  opacity: 0; 
+  transition: opacity .12s ease;
+  z-index: 2001;
+}
+
+/* Mostra tooltip no hover/foco */
+.primary-nav a.step-anchor:hover::after,
+.primary-nav a.step-anchor:focus-visible::after,
+.primary-nav a.step-anchor:hover::before,
+.primary-nav a.step-anchor:focus-visible::before{
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Em dispositivos touch, não exibir (evita “ficar preso”) */
+@media (hover: none){
+  .primary-nav a.step-anchor::after,
+  .primary-nav a.step-anchor::before{ display: none; }
+}
+
+
+
+  </style>
+</head>
+
+<body>
+  <!-- ===========================================
+       Link de pular para o conteúdo (A11y)
+       =========================================== -->
+  <a class="sr-only" href="#conteudo">Pular para o conteúdo</a>
+
+  <!-- ===========================================
+       Cabeçalho / Masthead
+       =========================================== -->
+  <header class="masthead">
+    <div class="container wrap">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true"></div>
+        <h1>HACCP <i> Hazard Analysis and Critical Control Point </i>– Leite UHT</h1>
+      </div>
+      
+	  <nav class="primary-nav" aria-label="Principal">
+  <a class="step-anchor"
+     href="#etapa-1"
+     data-tooltip="Produção e Coleta na Fazenda (Ordenha)"
+     title="Etapa 1 — Produção e Coleta na Fazenda (Ordenha)"
+     aria-label="Ir para a etapa 1: Produção e Coleta na Fazenda (Ordenha)">1</a>
+
+  <a class="step-anchor"
+     href="#etapa-2"
+     data-tooltip="Transporte/Coleta Refrigerada do Leite Cru (Granel)"
+     title="Etapa 2 — Transporte/Coleta Refrigerada (Granel)"
+     aria-label="Ir para a etapa 2: Transporte/Coleta Refrigerada (Granel)">2</a>
+
+  <a class="step-anchor"
+     href="#etapa-3"
+     data-tooltip="Recepção e Triagem do Leite Cru"
+     title="Etapa 3 — Recepção e Triagem do Leite Cru"
+     aria-label="Ir para a etapa 3: Recepção e Triagem do Leite Cru">3</a>
+
+  <a class="step-anchor"
+     href="#etapa-4"
+     data-tooltip="Silo Frio, Clarificação/Filtração e Padronização"
+     title="Etapa 4 — Silo Frio, Clarificação/Filtração e Padronização"
+     aria-label="Ir para a etapa 4: Silo Frio, Clarificação/Filtração e Padronização">4</a>
+
+  <a class="step-anchor"
+     href="#etapa-5"
+     data-tooltip="Tratamento UHT (Esterilização/Retenção/Resfriamento Asséptico)"
+     title="Etapa 5 — [Defina o título exato]"
+     aria-label="Ir para a etapa 5">5</a>
+
+  <a class="step-anchor"
+     href="#etapa-6"
+     data-tooltip="Envase Asséptico e Fechamento"
+     title="Etapa 6 — Tratamento Térmico UHT"
+     aria-label="Ir para a etapa 6: Tratamento Térmico UHT">6</a>
+
+  <a class="step-anchor"
+     href="#etapa-7"
+     data-tooltip="Armazenagem, Rotulagem e Distribuição"
+     title="Etapa 7 — Envase Asséptico / Embalagem UHT"
+     aria-label="Ir para a etapa 7: Envase Asséptico / Embalagem UHT">7</a>
+
+  <a class="step-anchor"
+     href="#etapa-8"
+     data-tooltip="Varejo (Ponto de Venda), Pós-Mercado e Recall"
+     title="Etapa 8 — Armazenagem do Produto Acabado"
+     aria-label="Ir para a etapa 8: Armazenagem do Produto Acabado">8</a>
+
+  <a class="step-anchor"
+     href="#etapa-9"
+     data-tooltip="Consumo (Uso Doméstico e Boas Práticas do Consumidor)"
+     title="Etapa 9 — Distribuição e Transporte ao Cliente"
+     aria-label="Ir para a etapa 9: Distribuição e Transporte ao Cliente">9</a>
+</nav>
+
+	  
+    </div>
+  </header>
+
+  <!-- ===========================================
+       Conteúdo principal
+       =========================================== -->
+  <main id="conteudo" class="container" tabindex="-1">
+    <!-- =======================================================
+         ETAPA 1 – Produção e Coleta de Leite Cru na Fazenda
+         -------------------------------------------------------
+         Como replicar para as próximas etapas:
+         - Duplique este <section> inteiro
+         - Atualize id="etapa-2", títulos e textos
+         - Atualize os IDs e data-open/data-close dos modais:
+           modal-perigos-2 / modal-acoes-2 / etc.
+         ======================================================= -->
+    <section id="etapa-1" class="stage-card" aria-labelledby="titulo-etapa-1">
+      <div class="stage-header">
+        <h2 id="titulo-etapa-1">1. Produção e Coleta de Leite Cru na Fazenda (Ordenha)</h2>
+        <span class="stage-tag">Etapa 1</span>
+      </div>
+
+      <div class="stage-body">
+        <p><strong>Descrição do processo:</strong> As vacas são ordenhadas sob condições higiênicas na fazenda.
+          O leite cru é imediatamente filtrado grosseiramente e refrigerado a ~4 °C em tanques de expansão para conservar a qualidade até o transporte.
+          No Brasil, recomenda-se resfriar o leite cru a ≤4 °C quando a coleta não é diária (ou ≤6 °C se coleta diária).
+          Higiene de ordenha, saúde animal e saneamento das instalações são críticos para evitar contaminações iniciais.
+        </p>
+
+        <div class="ref-list" aria-describedby="ref-1-nota">
+          <strong>Referências-chave desta etapa</strong>
+          <ul>
+            <li>Codex Alimentarius — <i> Code of Hygienic Practice for Milk and Milk Products </i> (CAC/RCP 57-2004).</li>
+            <li>ISO/TS 22002-1 — Programas de Pré-Requisitos (PRPs) para manufatura de alimentos.</li>
+            <li> SURAWEEERA, Piumali. <i> The Application of Hazard Analysis Critical Control Point(HACCP) to Pasteurized and UHT Milk</i> (2018). </li>
+          </ul>
+        
+        <!-- Botões que abrem os modais desta etapa -->
+        <div class="stage-actions" role="group" aria-label="Ações da etapa 1">
+          <button class="btn" data-open="modal-perigos-1">Análise de perigos</button>
+          <button class="btn" data-open="modal-acoes-1">Ações (Monitoramento, Corretivas, Verificação)</button>
+        </div>
+      </div>
+
+      <!-- ================================
+           Modal: Análise de Perigos / Avaliação de Risco
+           id => modal-perigos-1 (botão data-open deve apontar para este id)
+           ================================ -->
+      <div class="modal" id="modal-perigos-1" aria-hidden="true">
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-perigos-1">
+          <header class="modal-header">
+            <h3 id="titulo-perigos-1">Etapa 1 — Análise de Perigos e Avaliação de Risco</h3>
+            <button class="close" data-close="modal-perigos-1" aria-label="Fechar">×</button>
+          </header>
+          <div class="modal-content">
+            <!-- Perigos potenciais -->
+            <section aria-labelledby="sec-perigos-potenciais">
+              <h4 id="sec-perigos-potenciais">Perigos potenciais</h4>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Categoria</th>
+                      <th>Exemplos</th>
+                      <th>Consequência</th>
+                      <th>Controles previstos</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Biológicos</strong></td>
+                      <td><em>Salmonella</em>, <em>E. coli</em> O157:H7, <em>Listeria monocytogenes</em>, <em>Brucella</em>, <em>Mycobacterium bovis</em></td>
+                      <td>Toxinfecções; risco maior se o leite permanece morno</td>
+                      <td>BPA/GHP na ordenha; filtração; resfriamento rápido (tanque ≤4–6 °C); higiene de pessoal/equipamentos</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Químicos</strong></td>
+                      <td>Resíduos de antibióticos/antiparasitários; pesticidas; dioxinas; micotoxinas (aflatoxina M1)</td>
+                      <td>Resíduos acima de limites; risco carcinogênico (AFM1)</td>
+                      <td>Uso responsável de fármacos (carência); controle de ração/forragens; testes na recepção</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Físicos</strong></td>
+                      <td>Pelos; barro/esterco; insetos; plástico/metal de equipamentos</td>
+                      <td>Risco de lesão/contaminação do produto</td>
+                      <td>Higiene do local; manutenção/inspeção de equipamentos; filtração inicial</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="small-note">
+                Fundamentação: a ordenha, o manuseio, o armazenamento e o transporte devem evitar contaminações
+                e limitar o crescimento microbiano; instalações e equipamentos devem ser projetados e operados
+                para não introduzir contaminantes (Codex CAC/RCP 57-2004; ISO/TS 22002-1).
+              </p>
+            </section>
+
+            <!-- Explicação BPA e GHP -->
+            <section aria-labelledby="sec-bpa-ghp">
+              <h4 id="sec-bpa-ghp">O que são BPA e GHP</h4>
+              <p><strong>BPA (Boas Práticas Agropecuárias)</strong>: conjunto de práticas na produção primária que asseguram saúde e bem-estar dos animais,
+                uso responsável de medicamentos (com respeito aos períodos de carência), água e alimentação seguras, manejo e higiene adequados na fazenda.</p>
+              <p><strong>GHP (Good Hygiene Practices / Boas Práticas de Higiene)</strong>: práticas de higiene pessoal e operacional para prevenir contaminação,
+                incluindo higiene de ordenhadores (EPI, lavagem de mãos), higienização de teteiras/linhas/tanques, controle de pragas e saneamento do ambiente.</p>
+            </section>
+
+            <!-- PRPs / Procedimentos -->
+            <section aria-labelledby="sec-prps">
+              <h4 id="sec-prps">PRPs / Procedimentos de Rotina (nesta etapa)</h4>
+              <ul class="checklist">
+                <li>BPA/GHP na ordenha; higiene de ordenhadores (EPI, lavagem de mãos); higienização de teteiras/linhas/tanques; filtração na saída; limpeza e desinfecção com verificação.</li>
+                <li>Programa de saúde animal (mastite, brucelose, tuberculose), manejo e bem-estar; uso responsável de fármacos e respeito aos períodos de carência; descarte de leite de animais em tratamento.</li>
+                <li>Controle de alimentação (forragens/rações) para evitar pesticidas e micotoxinas (AFM1); preparo, armazenamento e monitoramento adequados de silagens.</li>
+                <li>Controle de pragas (medidas estruturais e operacionais) evitando uso inadequado de pesticidas na área de ordenha.</li>
+                <li>Utilidades seguras: água potável, vapor culinário e ar comprimido aptos para contato incidental; segregação de água não potável.</li>
+              </ul>
+            </section>
+
+            <!-- Árvore de decisão -->
+            <section aria-labelledby="sec-arvore">
+              <h4 id="sec-arvore">Árvore de Decisão Codex/NACMCF</h4>
+              <div class="decision-tree">
+                <ol>
+                  <li><strong>P1.</strong> Existe medida(s) de controle nesta etapa para o(s) perigo(s) identificado(s)?
+                    <div class="answer ok">Sim — PRPs (BPA/GHP, higiene, resfriamento rápido, filtração).</div>
+                  </li>
+                  <li><strong>P2.</strong> Esta etapa elimina o perigo ou o reduz a níveis aceitáveis?
+                    <div class="answer warn">Não — a eliminação/redução decisiva ocorrerá depois (UHT); aqui são PRPs.</div>
+                  </li>
+                  <li><strong>P3.</strong> O perigo pode ocorrer/aumentar a níveis inaceitáveis nesta etapa?
+                    <div class="answer ok">Sim — se não houver higiene/resfriamento, a carga microbiana cresce.</div>
+                  </li>
+                  <li><strong>P4.</strong> Existe etapa posterior que eliminará/reduzirá o perigo a nível aceitável?
+                    <div class="answer ok">Sim — tratamento térmico UHT (e triagens na recepção para perigos químicos).</div>
+                  </li>
+                </ol>
+                <div class="decision-outcome">
+                  <strong>Conclusão:</strong> <span class="badge">Não é PCC</span> (controle por PRPs e, se aplicável, oPRPs).
+                </div>
+              </div>
+            </section>
+
+            <!-- Limites críticos (não aplicável aqui) -->
+            <section aria-labelledby="sec-lc">
+              <h4 id="sec-lc">Limites críticos</h4>
+              <p>Não aplicável nesta etapa (sem PCC). Para robustez, defina <em>critérios de PRP</em> como:</p>
+              <ul class="bullets">
+                <li><strong>Temperatura do leite no tanque</strong> ≤4 °C quando a coleta não for diária (≤6 °C se coleta diária).</li>
+                <li>Tanque/linhas com CIP validado e verificação de limpeza (teste ATP ou placas, conforme plano).</li>
+                <li>Registros de higiene de pessoal e manutenção de equipamentos atualizados.</li>
+              </ul>
+            </section>
+
+            <!-- Registros -->
+            <section aria-labelledby="sec-registros">
+              <h4 id="sec-registros">Registros associados</h4>
+              <ul class="bullets">
+                <li><strong>Log de temperatura do tanque:</strong> registro sequencial (data/hora, leitura, responsável) das temperaturas do leite no tanque de expansão
+                    — tipicamente nas trocas de ordenha e antes da coleta — para evidenciar manutenção ≤4–6 °C e agir prontamente em desvios.</li>
+                <li>Registros de CIP/higienização; controle de pragas; uso de fármacos (com carências); origem/qualidade de rações/forragens; treinamentos.</li>
+              </ul>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================
+           Modal: Ações (Monitoramento, Corretivas, Verificação)
+           id => modal-acoes-1 (botão data-open deve apontar para este id)
+           ================================ -->
+      <div class="modal" id="modal-acoes-1" aria-hidden="true">
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-acoes-1">
+          <header class="modal-header">
+            <h3 id="titulo-acoes-1">Etapa 1 — Monitoramento, Ações Corretivas e Verificação</h3>
+            <button class="close" data-close="modal-acoes-1" aria-label="Fechar">×</button>
+          </header>
+          <div class="modal-content">
+            <!-- Plano de Monitoramento (PRPs/oPRPs) -->
+            <section aria-labelledby="sec-monitoramento">
+              <h4 id="sec-monitoramento">Plano de Monitoramento (PRPs/oPRPs)</h4>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Item</th><th>Método</th><th>Frequência</th><th>Responsável</th><th>Registro</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Temperatura do tanque</td>
+                      <td>Leitura display + termômetro aferido</td>
+                      <td>Cada ordenha + pré-coleta</td>
+                      <td>Ordenhador / Técnico</td>
+                      <td>Planilha de temperatura do tanque</td>
+                    </tr>
+                    <tr>
+                      <td>Higienização de linhas/tanques</td>
+                      <td>Checklist de CIP + teste ATP/placa</td>
+                      <td>Diária (ATP semanal)</td>
+                      <td>Enc. Fazenda</td>
+                      <td>Log CIP/ATP</td>
+                    </tr>
+                    <tr>
+                      <td>Higiene de pessoal</td>
+                      <td>Inspeção visual + auditoria GHP</td>
+                      <td>Diária / Semanal</td>
+                      <td>Supervisor</td>
+                      <td>Checklist GHP</td>
+                    </tr>
+                    <tr>
+                      <td>Controle de pragas</td>
+                      <td>Inspeção de pontos de isca / evidências</td>
+                      <td>Semanal</td>
+                      <td>Equipe/terceirizada de pragas</td>
+                      <td>Mapa de iscas / relatórios</td>
+                    </tr>
+                    <tr>
+                      <td>Uso de fármacos</td>
+                      <td>Conferência de receitas e carência</td>
+                      <td>Por tratamento</td>
+                      <td>Veterinário / Produtor</td>
+                      <td>Livro de tratamentos</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="small-note"><strong>Siglas:</strong> BPA = Boas Práticas Agropecuárias; GHP = Good Hygiene Practices (Boas Práticas de Higiene);
+                CIP = Cleaning-In-Place (Limpeza no Local); ATP = teste rápido de bioluminescência para verificação de limpeza;
+                EPI = Equipamento de Proteção Individual; oPRP = Programa de Pré-Requisito Operacional (controle preventivo específico).</p>
+            </section>
+
+            <!-- Ações Corretivas -->
+            <section aria-labelledby="sec-corretivas">
+              <h4 id="sec-corretivas">Ações Corretivas (exemplos)</h4>
+              <ul class="bullets">
+                <li><strong>Tanque &gt;4–6 °C</strong>: segregar lote; investigar falha (energia/CIP/painel); reestabelecer refrigeração; registrar e notificar; ajustar janela de coleta.</li>
+                <li><strong>Falha de higiene/CIP</strong>: repetir limpeza; testar até aprovação; segregar leite potencialmente afetado; reforçar treinamento.</li>
+                <li><strong>Suspeita de mastite/antibiótico</strong>: segregar leite; respeitar carência; atualizar livro de tratamentos; orientar produtor.</li>
+                <li><strong>Pragas</strong>: intensificar barreiras e armadilhas; corrigir estoques/armazenamento; revisar cronograma com a terceirizada.</li>
+              </ul>
+            </section>
+
+            <!-- Verificação -->
+            <section aria-labelledby="sec-verificacao">
+              <h4 id="sec-verificacao">Verificação</h4>
+              <ul class="bullets">
+                <li>Revisão periódica dos registros (temperatura, CIP, pragas, fármacos, treinamentos) e tendências.</li>
+                <li>Auditorias internas de GHP/BPA na fazenda; calibração de termômetros.</li>
+                <li>Planos de melhoria contínua com base nos desvios (TQM/NQMS).</li>
+              </ul>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+
+<!-- =======================================================
+     ETAPA 2 – Transporte/Coleta Refrigerada (granel)
+     -------------------------------------------------------
+     Duplicar este bloco como base para as próximas etapas:
+     - Atualize id do <section> e os ids dos modais
+     ======================================================= -->
+<section id="etapa-2" class="stage-card" aria-labelledby="titulo-etapa-2">
+  <div class="stage-header">
+    <h2 id="titulo-etapa-2">2. Transporte/Coleta Refrigerada do Leite Cru (Granel)</h2>
+    <span class="stage-tag">Etapa 2</span>
+  </div>
+
+  <div class="stage-body">
+    <p><strong>Descrição do processo:</strong> O leite cru resfriado na fazenda é coletado em caminhões tanque
+      isotérmicos/refrigerados, mantendo cadeia fria até a indústria. Antes da coleta, verificam-se condições
+      do tanque da fazenda, temperatura do leite e aparência/odor. A transferência é feita por mangueiras e
+      bombas sanitárias conectadas ao sistema do caminhão; após a coleta, os compartimentos são <em>lacrados</em>
+      e o veículo segue rota definida, com controles de tempo e temperatura.</p>
+
+    <div class="ref-list">
+      <strong>Referências-chave desta etapa</strong>
+      <ul>
+        <li>Codex Alimentarius — <i>Code of Hygienic Practice for Milk and Milk Products</i> (CAC/RCP 57-2004).</li>
+        <li>Codex Alimentarius — <i>Code of Hygienic Practice for the Transport of Food in Bulk and Semi-Packed Form</i> (CXC 47-2001).</li>
+        <li>ISO/TS 22002-1 — Programas de Pré-Requisitos (PRPs) para manufatura (inclui utilidades, higiene, pragas, limpeza, transporte).</li>
+      </ul>
+    </div>
+
+    <!-- Botões que abrem os modais desta etapa -->
+    <div class="stage-actions" role="group" aria-label="Ações da etapa 2">
+      <button class="btn" data-open="modal-perigos-2">Análise de perigos</button>
+      <button class="btn" data-open="modal-acoes-2">Ações (Monitoramento, Corretivas, Verificação)</button>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Análise de Perigos / Avaliação de Risco (Etapa 2)
+       ================================ -->
+  <div class="modal" id="modal-perigos-2" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-perigos-2">
+      <header class="modal-header">
+        <h3 id="titulo-perigos-2">Etapa 2 — Análise de Perigos e Avaliação de Risco</h3>
+        <button class="close" data-close="modal-perigos-2" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Perigos potenciais -->
+        <section aria-labelledby="sec2-perigos">
+          <h4 id="sec2-perigos">Perigos potenciais</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Categoria</th>
+                  <th>Exemplos</th>
+                  <th>Consequência</th>
+                  <th>Controles previstos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Biológicos</strong></td>
+                  <td>Crescimento de psicrotróficos por abuso de temperatura; recontaminação por tanque/mangueira/bomba sujos</td>
+                  <td>Aumento de carga microbiana; enzimas termoestáveis (proteases/lipases) podem gerar deterioração</td>
+                  <td>Manutenção da cadeia fria (≤4–6&nbsp;°C), tempo de transporte otimizado; CIP validado de tanque/mangueiras; conexões higiênicas</td>
+                </tr>
+                <tr>
+                  <td><strong>Químicos</strong></td>
+                  <td>Resíduos de detergentes/sanitizantes de CIP; lubrificantes não alimentícios; combustíveis/óleos</td>
+                  <td>Resíduos acima do aceitável; risco toxicológico/organoléptico</td>
+                  <td>SSOP/CIP com enxágue e verificação; uso de lubrificantes <em>food grade</em>; integridade de sistemas do veículo</td>
+                </tr>
+                <tr>
+                  <td><strong>Físicos</strong></td>
+                  <td>Fragmentos de borracha de gaxetas; limalhas/metais; terra/poeira; tampas/vedações danificadas</td>
+                  <td>Risco de lesão e contaminação do produto</td>
+                  <td>Inspeção pré-coleta; integridade de mangueiras/gaxetas; proteção de pontos de conexão; filtração</td>
+                </tr>
+                <tr>
+                  <td><strong>Fraude/Adulteração</strong></td>
+                  <td>Adição de água/neutralizantes; mistura não autorizada</td>
+                  <td>Compromete segurança/qualidade; dilui sólidos; altera estabilidade</td>
+                  <td>Lacres numerados e registros de rota; testes na recepção (por ex., crioscopia, triagens)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="small-note">
+            Fundamentação: transporte deve preservar as condições higiênicas e a temperatura do leite, evitando
+            recontaminação e crescimento microbiano; equipamentos e utensílios sanitários e limpos; prevenção de
+            contaminações químicas e físicas; uso de veículos projetados para alimentos (Codex CAC/RCP 57-2004; Codex CXC 47-2001; ISO/TS 22002-1).
+          </p>
+        </section>
+
+        <!-- PRPs / Procedimentos -->
+        <section aria-labelledby="sec2-prps">
+          <h4 id="sec2-prps">PRPs / Procedimentos de Rotina (nesta etapa)</h4>
+          <ul class="checklist">
+            <li><strong>Cadeia fria:</strong> manter ≤4–6&nbsp;°C do ponto de coleta ao recebimento; datalogger/termógrafo aferido.</li>
+            <li><strong>Higienização:</strong> CIP/SSOP de tanques compartimentados, mangueiras, bombas e conexões com verificação (ATP/condutividade/checagem visual).</li>
+            <li><strong>Integridade:</strong> inspeção de mangueiras/gaxetas; filtros adequados; tampas/escotilhas limpas; proteção contra poeira.</li>
+            <li><strong>Segurança química:</strong> enxágue final adequado após CIP; lubrificantes grau alimentício; armazenamento correto de químicos.</li>
+            <li><strong>Segurança e fraude:</strong> lacres numerados após cada coleta; controle de rota/tempo/paradas; documentação do volume/temperatura na coleta.</li>
+          </ul>
+        </section>
+
+        <!-- Árvore de decisão -->
+        <section aria-labelledby="sec2-arvore">
+          <h4 id="sec2-arvore">Árvore de Decisão Codex/NACMCF</h4>
+          <div class="decision-tree">
+            <ol>
+              <li><strong>P1.</strong> Existe medida(s) de controle nesta etapa para o(s) perigo(s) identificado(s)?
+                <div class="answer ok">Sim — PRPs/oPRPs: cadeia fria, CIP/SSOP do sistema de coleta e do caminhão, lacres e documentação.</div>
+              </li>
+              <li><strong>P2.</strong> Esta etapa elimina o perigo ou o reduz a níveis aceitáveis?
+                <div class="answer warn">Não — não há eliminação; a redução decisiva virá no UHT. Aqui previne-se crescimento/introdução.</div>
+              </li>
+              <li><strong>P3.</strong> O perigo pode ocorrer/aumentar a níveis inaceitáveis nesta etapa?
+                <div class="answer ok">Sim — abuso de temperatura e falha de higiene elevam risco.</div>
+              </li>
+              <li><strong>P4.</strong> Existe etapa posterior que eliminará/reduzirá o perigo a nível aceitável?
+                <div class="answer ok">Sim — tratamento térmico UHT; além de triagens na recepção para resíduos/adulteração.</div>
+              </li>
+            </ol>
+            <div class="decision-outcome">
+              <strong>Conclusão:</strong> <span class="badge">Não é PCC</span> (controle por PRPs e, tipicamente, <em>oPRPs</em> para cadeia fria).
+            </div>
+          </div>
+        </section>
+
+        <!-- Limites críticos -->
+        <section aria-labelledby="sec2-lc">
+          <h4 id="sec2-lc">Limites críticos</h4>
+          <p>Não aplicável (sem PCC). Definir <em>critérios de PRP/oPRP</em> para robustez:</p>
+          <ul class="bullets">
+            <li><strong>Temperatura do leite na coleta e no recebimento</strong> ≤4–6&nbsp;°C (consistente com a etapa 1 e requisitos contratuais/legais).</li>
+            <li><strong>Integridade de lacres</strong> do(s) compartimento(s) e pontos de descarga: sem violação entre coleta e entrega.</li>
+            <li><strong>CIP/SSOP do sistema de coleta</strong> (tanque, mangueiras, bomba, válvulas) executado e verificado por registros + checagem visual/ATP, conforme plano.</li>
+          </ul>
+        </section>
+
+        <!-- Registros -->
+        <section aria-labelledby="sec2-registros">
+          <h4 id="sec2-registros">Registros associados</h4>
+          <ul class="bullets">
+            <li><strong>Registro de temperatura (coleta/recepção):</strong> data/hora, valor lido, ponto de medição, responsável; evidência de manutenção ≤4–6&nbsp;°C.</li>
+            <li><strong>Relatório de CIP/SSOP do veículo e acessórios:</strong> ciclos executados, químicos, concentração/condutividade, inspeções e aprovações.</li>
+            <li><strong>Controle de lacres e rota:</strong> números de lacre por compartimento, origem/destino, tempo de viagem, eventuais paradas.</li>
+            <li><strong>Calibração de sensores/termógrafos</strong> e manutenção preventiva do sistema de refrigeração.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Ações (Monitoramento, Corretivas, Verificação) (Etapa 2)
+       ================================ -->
+  <div class="modal" id="modal-acoes-2" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-acoes-2">
+      <header class="modal-header">
+        <h3 id="titulo-acoes-2">Etapa 2 — Monitoramento, Ações Corretivas e Verificação</h3>
+        <button class="close" data-close="modal-acoes-2" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Plano de Monitoramento (PRPs/oPRPs) -->
+        <section aria-labelledby="sec2-monitoramento">
+          <h4 id="sec2-monitoramento">Plano de Monitoramento (PRPs/oPRPs)</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th><th>Método</th><th>Frequência</th><th>Responsável</th><th>Registro</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Temperatura na coleta</td>
+                  <td>Termômetro aferido/datalogger</td>
+                  <td>Em cada coleta</td>
+                  <td>Motorista/Coletor</td>
+                  <td>Log de temperatura (coleta)</td>
+                </tr>
+                <tr>
+                  <td>Temperatura no recebimento</td>
+                  <td>Termômetro aferido/datalogger</td>
+                  <td>Em cada descarga</td>
+                  <td>Recepção Industrial</td>
+                  <td>Log de temperatura (recepção)</td>
+                </tr>
+                <tr>
+                  <td>Integridade de lacres</td>
+                  <td>Conferência visual + números</td>
+                  <td>Coleta e chegada</td>
+                  <td>Motorista / Recepção</td>
+                  <td>Checklist de lacres/rota</td>
+                </tr>
+                <tr>
+                  <td>CIP/SSOP de tanque e acessórios</td>
+                  <td>Checklist + verificação (visual/ATP)</td>
+                  <td>Diária ou por ciclo</td>
+                  <td>Transportadora</td>
+                  <td>Relatório de CIP/SSOP</td>
+                </tr>
+                <tr>
+                  <td>Funcionamento do datalogger</td>
+                  <td>Verificação de registro contínuo</td>
+                  <td>Por viagem</td>
+                  <td>Motorista / Qualidade</td>
+                  <td>Export do datalogger</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="small-note"><strong>Siglas:</strong> CIP = Cleaning-In-Place; SSOP = Sanitation Standard Operating Procedure; oPRP = Programa de Pré-Requisito Operacional.</p>
+        </section>
+
+        <!-- Ações Corretivas -->
+        <section aria-labelledby="sec2-corretivas">
+          <h4 id="sec2-corretivas">Ações Corretivas (exemplos)</h4>
+          <ul class="bullets">
+            <li><strong>T &gt;4–6&nbsp;°C</strong> na coleta ou chegada: segregar lote; avaliar destino alternativo; investigar causa (refrigeração/porta/tempo); ajustar rota/manutenção; comunicação ao fornecedor/transportadora.</li>
+            <li><strong>Lacre violado</strong>: segregar e bloquear descarga; iniciar investigação de integridade/fraude; registrar evidências; notificar responsáveis.</li>
+            <li><strong>Resíduo químico (CIP)</strong> detectado: re-enxaguar/sanitizar; reamostrar; revisar SSOP/concentração; treinar equipe.</li>
+            <li><strong>Datalogger inoperante</strong>: verificar T manual na chegada; avaliar risco com registros alternativos; corrigir/ substituir equipamento e registrar.</li>
+          </ul>
+        </section>
+
+        <!-- Verificação -->
+        <section aria-labelledby="sec2-verificacao">
+          <h4 id="sec2-verificacao">Verificação</h4>
+          <ul class="bullets">
+            <li>Auditorias periódicas da transportadora e da higienização dos veículos (documental e in loco).</li>
+            <li>Trending de temperaturas por rota/fornecedor; análise de desvios e CAPAs.</li>
+            <li>Calibração planejada de termômetros/dataloggers; verificação de alarmes.</li>
+            <li>Swab/ATP amostral em mangueiras/bombas/conexões; revisão de registros de CIP/SSOP.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =======================================================
+     ETAPA 3 – Recepção e Triagem do Leite Cru na Indústria
+     -------------------------------------------------------
+     Observações:
+     - Mantém o mesmo padrão visual/semântico das etapas anteriores
+     - Identificamos PCCs para: (A) Resíduos de antibióticos/inibitórios e (B) Aflatoxina M1
+     - Demais controles nesta etapa: oPRPs/PRPs (temperatura, adulteração, higiene de linha, etc.)
+     ======================================================= -->
+<section id="etapa-3" class="stage-card" aria-labelledby="titulo-etapa-3">
+  <div class="stage-header">
+    <h2 id="titulo-etapa-3">3. Recepção e Triagem do Leite Cru na Indústria</h2>
+    <span class="stage-tag">Etapa 3</span>
+  </div>
+  
+   <!-- Ícone estático (não-clicável) -->
+    <span class="pcc-flag" role="img" aria-label="Esta etapa possui PCC(s)" title="Esta etapa possui PCC(s)">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path fill="currentColor"
+          d="M12 2a1 1 0 0 1 .86.49l9 15a1 1 0 0 1-.86 1.51H3a1 1 0 0 1-.86-1.51l9-15A1 1 0 0 1 12 2zm0 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-1-6h2v5h-2V9z"/>
+      </svg>
+      <span>PCC</span>
+    </span>
+  </div>
+
+  <div class="stage-body">
+    <p><strong>Descrição do processo:</strong> Na chegada dos caminhões-tanque à indústria, realiza-se a triagem do leite cru
+      por amostragem representativa dos compartimentos: verificação de <em>temperatura</em>, avaliação sensorial (cor/odor/sabor),
+      testes de <em>adulteração</em> (p. ex., crioscopia/densidade), análise de <em>estabilidade</em> (p. ex., álcool/alizarol),
+      triagens para <em>resíduos de antibióticos/inibitórios</em> e, conforme plano baseado em risco, <em>aflatoxina M1</em>.
+      A descarga só ocorre após aprovação nos critérios; lotes não conformes são segregados para decisão (rejeição/alternativa).
+      Linhas de recepção e silos devem estar higienizados (CIP validado) e equipados para filtração inicial.</p>
+
+    <div class="ref-list">
+      <strong>Referências-chave desta etapa</strong>
+      <ul>
+        <li>Codex Alimentarius — <i>Code of Hygienic Practice for Milk and Milk Products</i> (CAC/RCP 57-2004).</li>
+        <li>ISO 22000 (FSMS) — abordagem por riscos, PCCs e verificação.</li>
+        <li>ISO/TS 22002-1 — PRPs aplicáveis (higiene, limpeza/CIP, utilidades, controle de pragas, transporte/recebimento).</li>
+        <li>Legislação brasileira vigente (MAPA/ANVISA) para critérios de recepção (temperatura) e limites legais (p. ex., AFM1).</li>
+      </ul>
+    </div>
+
+    <!-- Botões que abrem os modais desta etapa -->
+    <div class="stage-actions" role="group" aria-label="Ações da etapa 3">
+      <button class="btn" data-open="modal-perigos-3">Análise de perigos</button>
+      <button class="btn" data-open="modal-acoes-3">Ações (Monitoramento, Corretivas, Verificação)</button>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Análise de Perigos / Avaliação de Risco (Etapa 3)
+       ================================ -->
+  <div class="modal" id="modal-perigos-3" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-perigos-3">
+      <header class="modal-header">
+        <h3 id="titulo-perigos-3">Etapa 3 — Análise de Perigos e Avaliação de Risco</h3>
+        <button class="close" data-close="modal-perigos-3" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Perigos potenciais -->
+        <section aria-labelledby="sec3-perigos">
+          <h4 id="sec3-perigos">Perigos potenciais</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Categoria</th>
+                  <th>Exemplos</th>
+                  <th>Consequência</th>
+                  <th>Controles previstos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Biológicos</strong></td>
+                  <td>Carga elevada por abuso de temperatura; recontaminação da linha de recepção (CIP inadequado)</td>
+                  <td>Aumento de contagem e produção de enzimas termoestáveis (deterioração)</td>
+                  <td>Temperatura de recebimento ≤4–6&nbsp;°C; CIP validado de linhas/silos; filtração inicial; segregação de lotes duvidosos</td>
+                </tr>
+                <tr>
+                  <td><strong>Químicos</strong></td>
+                  <td><u>Resíduos de antibióticos/inibitórios</u> (beta-lactâmicos etc.); <u>Aflatoxina M1</u>; resíduos de sanitizantes</td>
+                  <td>Falhas tecnológicas (fermentações), risco à saúde, não conformidade legal</td>
+                  <td>Triagem compulsória para antibióticos em cada lote/cisterna; plano amostral para AFM1; rejeição e rastreabilidade; SSOP de enxágue após CIP</td>
+                </tr>
+                <tr>
+                  <td><strong>Físicos</strong></td>
+                  <td>Fragmentos (vedações, metálicos), sujidades/sedimentos</td>
+                  <td>Risco de lesão/contaminação</td>
+                  <td>Inspeção/filtro na recepção; integridade de peneiras e gaxetas; manutenção</td>
+                </tr>
+                <tr>
+                  <td><strong>Fraude/Adulteração</strong></td>
+                  <td>Adição de água/neutralizantes; mistura não autorizada</td>
+                  <td>Compromete segurança e especificação</td>
+                  <td>Crioscopia/densidade; conferência documental; lacres/rota; rejeição</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="small-note">
+            Fundamentação: recepção deve assegurar que somente leite conforme ingresse no processo;
+            controles incluem temperatura, higiene de linha (CIP), triagens químicas e testes de autenticidade (Codex CAC/RCP 57-2004; ISO 22000; ISO/TS 22002-1).
+          </p>
+        </section>
+
+        <!-- PRPs / Procedimentos -->
+        <section aria-labelledby="sec3-prps">
+          <h4 id="sec3-prps">PRPs / Procedimentos de Rotina (nesta etapa)</h4>
+          <ul class="checklist">
+            <li>Amostragem representativa por compartimento com identificação e cadeia de custódia.</li>
+            <li>Verificação de temperatura, aparência/odor, estabilidade ao álcool/alizarol e sedimentos antes da descarga.</li>
+            <li>Crioscopia/densidade para autenticidade; conferência de lacres e documentos de transporte.</li>
+            <li>CIP/SSOP validado das linhas de recepção, bombas, válvulas, filtros e silos; enxágue final adequado.</li>
+            <li>Calibração de termômetros/dataloggers e equipamentos analíticos; gestão de não conformidades.</li>
+          </ul>
+        </section>
+
+        <!-- Árvore de decisão -->
+        <section aria-labelledby="sec3-arvore">
+          <h4 id="sec3-arvore">Árvore de Decisão Codex/NACMCF</h4>
+
+          <!-- Subárvore A: Resíduos de antibióticos/inibitórios -->
+          <div class="decision-tree">
+            <p><strong>Perigo A:</strong> Resíduos de antibióticos/inibitórios</p>
+            <ol>
+              <li><strong>P1.</strong> Existem medidas de controle nesta etapa?
+                <div class="answer ok">Sim — triagem obrigatória por teste rápido validado em cada lote/cisterna; rejeição se positivo.</div>
+              </li>
+              <li><strong>P2.</strong> A etapa elimina o perigo ou o reduz a níveis aceitáveis?
+                <div class="answer ok">Sim — por <em>segregação/rejeição</em> antes de entrar no processo.</div>
+              </li>
+              <li><strong>P3.</strong> O perigo pode atingir níveis inaceitáveis aqui?
+                <div class="answer ok">Sim — leite positivo pode ser descarregado se não houver controle.</div>
+              </li>
+              <li><strong>P4.</strong> Há etapa posterior que elimine/reduza a níveis aceitáveis?
+                <div class="answer warn">Não — tratamento térmico (UHT) não remove resíduos de antibióticos.</div>
+              </li>
+            </ol>
+            <div class="decision-outcome">
+              <strong>Conclusão:</strong> <span class="badge">É PCC</span> — PCC-3A (Antibióticos/Inibitórios).
+            </div>
+          </div>
+
+          <!-- Subárvore B: Aflatoxina M1 -->
+          <div class="decision-tree">
+            <p><strong>Perigo B:</strong> Aflatoxina M1 (AFM1)</p>
+            <ol>
+              <li><strong>P1.</strong> Existem medidas de controle nesta etapa?
+                <div class="answer ok">Sim — triagem/monitoramento na recepção com plano baseado em risco e confirmação por método validado; rejeição se acima do limite.</div>
+              </li>
+              <li><strong>P2.</strong> A etapa elimina/reduz a níveis aceitáveis?
+                <div class="answer ok">Sim — por <em>segregação/rejeição</em> (controle de aceitação).</div>
+              </li>
+              <li><strong>P3.</strong> Pode atingir níveis inaceitáveis nesta etapa?
+                <div class="answer ok">Sim — leite contaminado pode ingressar sem triagem.</div>
+              </li>
+              <li><strong>P4.</strong> Há etapa posterior que elimine/reduza AFM1?
+                <div class="answer warn">Não — UHT não degrada AFM1 de modo confiável.</div>
+              </li>
+            </ol>
+            <div class="decision-outcome">
+              <strong>Conclusão:</strong> <span class="badge">É PCC</span> — PCC-3B (Aflatoxina M1).
+            </div>
+          </div>
+
+          <!-- Subárvore C: Temperatura/Adulteração/Higiene de linha -->
+          <div class="decision-tree">
+            <p><strong>Perigos C (conjunto):</strong> Temperatura de recebimento, adulteração (água/neutralizantes), recontaminação por CIP inadequado</p>
+            <ol>
+              <li><strong>P1.</strong> Existem medidas de controle?
+                <div class="answer ok">Sim — verificação de T, crioscopia/densidade, CIP/SSOP verificado.</div>
+              </li>
+              <li><strong>P2.</strong> A etapa elimina o perigo?
+                <div class="answer warn">Não — são medidas preventivas; eliminação não ocorre aqui.</div>
+              </li>
+              <li><strong>P3.</strong> Pode ocorrer/aumentar a níveis inaceitáveis?
+                <div class="answer ok">Sim — se houver abuso de T, adulteração ou CIP falho.</div>
+              </li>
+              <li><strong>P4.</strong> Há etapa posterior que elimine/reduza?
+                <div class="answer ok">UHT reduzirá microrganismos, mas não corrige adulteração; controles aqui são classificados como <em>oPRPs/PRPs</em>.</div>
+              </li>
+            </ol>
+            <div class="decision-outcome">
+              <strong>Conclusão:</strong> <span class="badge">Não é PCC</span> (controle por oPRPs/PRPs).
+            </div>
+          </div>
+        </section>
+
+        <!-- Limites críticos (apenas para PCCs) -->
+        <section aria-labelledby="sec3-lc">
+          <h4 id="sec3-lc">Limites críticos (PCC-3A e PCC-3B)</h4>
+          <ul class="bullets">
+            <li><strong>PCC-3A — Antibióticos/Inibitórios:</strong> Resultado <em>negativo</em> em teste rápido validado (controles do kit aprovados; kit dentro da validade; amostragem conforme POP). Qualquer resultado positivo/suspeito ⇒ <em>não descarregar</em>.</li>
+            <li><strong>PCC-3B — Aflatoxina M1:</strong> Concentração <em>≤ limite legal vigente</em> no Brasil (conforme norma aplicável). Triagem positiva/suspeita ⇒ confirmar por método validado (p. ex., ELISA confirmatório/LC-MS/MS) antes da decisão.</li>
+          </ul>
+          <p class="small-note">Demais critérios (temperatura de recebimento, autenticidade, higiene de linha) são especificações de oPRPs/PRPs e não limites críticos de PCC.</p>
+        </section>
+
+        <!-- Registros -->
+        <section aria-labelledby="sec3-registros">
+          <h4 id="sec3-registros">Registros associados</h4>
+          <ul class="bullets">
+            <li>Formulário de recepção por compartimento: temperatura, sensorial, sedimentos, álcool/alizarol, crioscopia/densidade, lacres.</li>
+            <li><strong>Laudos PCC-3A (antibióticos):</strong> resultados por lote/compartimento, identificação do kit (lote/validade), controles positivo/negativo, aprovação/rejeição.</li>
+            <li><strong>Laudos PCC-3B (AFM1):</strong> triagem + confirmatório quando aplicável; rastreabilidade do fornecedor e da ração.</li>
+            <li>Relatórios de CIP/SSOP da linha de recepção e silos; calibração de termômetros/dataloggers; decisões de segregação/destinação.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Ações (Monitoramento, Corretivas, Verificação) (Etapa 3)
+       ================================ -->
+  <div class="modal" id="modal-acoes-3" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-acoes-3">
+      <header class="modal-header">
+        <h3 id="titulo-acoes-3">Etapa 3 — Monitoramento, Ações Corretivas e Verificação</h3>
+        <button class="close" data-close="modal-acoes-3" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Plano de Monitoramento (inclui PCCs) -->
+        <section aria-labelledby="sec3-monitoramento">
+          <h4 id="sec3-monitoramento">Plano de Monitoramento (PCCs e oPRPs)</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th><th>Método</th><th>Frequência</th><th>Responsável</th><th>Registro</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>PCC-3A</strong> — Antibióticos/Inibitórios</td>
+                  <td>Teste rápido validado (controles OK)</td>
+                  <td><strong>Todo lote/compartimento</strong>, <em>antes</em> da descarga</td>
+                  <td>Qualidade/Recepção</td>
+                  <td>Laudo de triagem (kit, lote/validade, resultado)</td>
+                </tr>
+                <tr>
+                  <td><strong>PCC-3B</strong> — Aflatoxina M1</td>
+                  <td>Triagem baseada em risco + confirmatório (ELISA/LC-MS/MS)</td>
+                  <td>Plano amostral por fornecedor/época (definido por APPCC)</td>
+                  <td>Qualidade/Lab</td>
+                  <td>Laudo AFM1 (triagem/confirmatório)</td>
+                </tr>
+                <tr>
+                  <td>Temperatura de recebimento (oPRP)</td>
+                  <td>Termômetro aferido / datalogger</td>
+                  <td>Cada descarga</td>
+                  <td>Recepção</td>
+                  <td>Log de temperatura (recepção)</td>
+                </tr>
+                <tr>
+                  <td>Adulteração/autenticidade (oPRP)</td>
+                  <td>Crioscopia, densidade, álcool/alizarol</td>
+                  <td>Cada lote</td>
+                  <td>Recepção/Qualidade</td>
+                  <td>Relatório de recepção</td>
+                </tr>
+                <tr>
+                  <td>Higiene de linha (PRP)</td>
+                  <td>Checklist CIP/SSOP + verificação (visual/condutividade/ATP)</td>
+                  <td>Diária/por ciclo</td>
+                  <td>Utilidades/Qualidade</td>
+                  <td>Relatório CIP/SSOP</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="small-note"><strong>Siglas:</strong> CIP = Cleaning-In-Place; SSOP = Sanitation Standard Operating Procedure; oPRP = Programa de Pré-Requisito Operacional; AFM1 = Aflatoxina M1; ELISA/LC-MS/MS = métodos analíticos confirmatórios.</p>
+        </section>
+
+        <!-- Ações Corretivas -->
+        <section aria-labelledby="sec3-corretivas">
+          <h4 id="sec3-corretivas">Ações Corretivas</h4>
+          <ul class="bullets">
+            <li><strong>PCC-3A positivo (antibióticos):</strong> <em>Não descarregar</em>; reamostrar uma única vez para confirmar; se confirmado ⇒ rejeitar lote; registrar; notificar fornecedor; bloqueio de novos carregamentos até investigação; revisão do plano do fornecedor.</li>
+            <li><strong>PCC-3B acima do limite (AFM1):</strong> <em>Não descarregar</em>; confirmar por método validado; se confirmado ⇒ rejeitar; rastrear origem (ração/silagem); aumentar frequência amostral do fornecedor; avaliar comunicação às autoridades conforme legislação.</li>
+            <li><strong>Temperatura &gt; limite (oPRP):</strong> segregar; investigar causa (rota/tempo/refrigeração); decidir destinação conforme POP e legislação; reforçar controle de cadeia fria.</li>
+            <li><strong>Adulteração suspeita (oPRP):</strong> bloquear; investigação (crioscopia/densidade/COA); rejeitar se confirmado; qualificar/ desqualificar fornecedor.</li>
+            <li><strong>CIP inadequado (PRP):</strong> interromper descarga; repetir CIP; verificar até aprovação; descartar produto potencialmente afetado conforme avaliação de risco.</li>
+          </ul>
+        </section>
+
+        <!-- Verificação -->
+        <section aria-labelledby="sec3-verificacao">
+          <h4 id="sec3-verificacao">Procedimentos de Verificação</h4>
+          <ul class="bullets">
+            <li><strong>Revisão de tendências</strong> de resultados (antibióticos, AFM1, temperatura, crioscopia) por fornecedor/rota/estação.</li>
+            <li><strong>Ensaios de proficiência</strong> e controles internos dos métodos de triagem/confirmatório; verificação de validade de kits.</li>
+            <li><strong>Auditorias internas</strong> na recepção e avaliação de fornecedores (incluindo plano de alimentação animal).</li>
+            <li><strong>Calibração</strong> programada de termômetros, dataloggers e equipamentos analíticos; verificação de alarmes.</li>
+            <li><strong>Revisão do APPCC</strong> anual ou após desvios relevantes; atualização do plano amostral por risco.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- =======================================================
+     ETAPA 4 – Armazenamento em Silo (frio), Clarificação/Filtração e Padronização
+     -------------------------------------------------------
+     Observações:
+     - Nesta etapa não há eliminação de perigos; foco em prevenir crescimento/recontaminação (oPRPs/PRPs).
+     - UHT será o PCC térmico adiante; aqui controlamos tempo/temperatura, higiene de linha e integridade de filtros.
+     ======================================================= -->
+<section id="etapa-4" class="stage-card" aria-labelledby="titulo-etapa-4">
+  <div class="stage-header">
+    <h2 id="titulo-etapa-4">4. Armazenamento em Silo (Frio), Clarificação/Filtração e Padronização</h2>
+    <span class="stage-tag">Etapa 4</span>
+  </div>
+
+  <div class="stage-body">
+    <p><strong>Descrição do processo:</strong> Após aprovação na recepção, o leite cru é transferido para <em>silões refrigerados</em>,
+      sob agitação suave, mantendo cadeia fria até o processamento UHT. Conforme o arranjo fabril, executa-se <em>clarificação/filtração</em>
+      para remoção de sedimentos e fragmentos, e a <em>padronização de gordura</em> (ajuste de teor de gordura por separação/ mistura controlada).
+      Os riscos chave são <em>crescimento microbiano por tempo/temperatura inadequados</em> e <em>recontaminação</em> por CIP insuficiente ou por falhas
+      de integridade (válvulas, gaxetas, filtros).</p>
+
+    <div class="ref-list">
+      <strong>Referências-chave desta etapa</strong>
+      <ul>
+        <li>Codex Alimentarius — <i>Code of Hygienic Practice for Milk and Milk Products</i> (CAC/RCP 57-2004).</li>
+        <li>ISO 22000 (FSMS) — gestão de riscos, critérios de aceitação, monitoramento e verificação.</li>
+        <li>ISO/TS 22002-1 — PRPs: limpeza/CIP, utilidades, manutenção, higiene, controle de materiais e filtragem.</li>
+      </ul>
+    </div>
+
+    <!-- Botões que abrem os modais desta etapa -->
+    <div class="stage-actions" role="group" aria-label="Ações da etapa 4">
+      <button class="btn" data-open="modal-perigos-4">Análise de perigos</button>
+      <button class="btn" data-open="modal-acoes-4">Ações (Monitoramento, Corretivas, Verificação)</button>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Análise de Perigos / Avaliação de Risco (Etapa 4)
+       ================================ -->
+  <div class="modal" id="modal-perigos-4" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-perigos-4">
+      <header class="modal-header">
+        <h3 id="titulo-perigos-4">Etapa 4 — Análise de Perigos e Avaliação de Risco</h3>
+        <button class="close" data-close="modal-perigos-4" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Perigos potenciais -->
+        <section aria-labelledby="sec4-perigos">
+          <h4 id="sec4-perigos">Perigos potenciais</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Categoria</th>
+                  <th>Exemplos</th>
+                  <th>Consequência</th>
+                  <th>Controles previstos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Biológicos</strong></td>
+                  <td>Crescimento de psicrotróficos em silo por abuso de T/tempo; biofilmes por CIP inadequado; recontaminação em clarificador/válvulas</td>
+                  <td>Alta contagem; enzimas termoestáveis (proteases/lipases) → defeitos mesmo após UHT</td>
+                  <td><strong>oPRP:</strong> T do silo ≤4–6&nbsp;°C; <strong>tempo máx. de estocagem</strong> definido (ex.: ≤24–48&nbsp;h, conforme estudo); CIP validado e verificado; agitação adequada; fluxo higiênico</td>
+                </tr>
+                <tr>
+                  <td><strong>Químicos</strong></td>
+                  <td>Resíduos de detergentes/sanitizantes pós-CIP; lubrificantes não alimentícios; ar comprimido não qualificado (em válvulas/controle)</td>
+                  <td>Resíduos acima do aceitável; riscos toxicológicos/organolépticos</td>
+                  <td>SSOP/CIP com enxágue e verificação; lubrificantes <em>food grade</em>; ar/gases de qualidade alimentar quando em contato incidental</td>
+                </tr>
+                <tr>
+                  <td><strong>Físicos</strong></td>
+                  <td>Fragmentos de gaxetas; partículas metálicas; sedimentos; elementos de filtro danificados</td>
+                  <td>Risco de lesão e contaminação do produto</td>
+                  <td>Integridade de filtros/peneiras; inspeção/manutenção preventiva; substituição por horas/ciclos</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="small-note">
+            Fundamentação: armazenamento a frio e higiene de equipamentos devem prevenir crescimento e recontaminação; clarificação/filtração
+            removem partículas; padronização não é etapa de eliminação de perigo e deve operar em circuito higienizado (Codex CAC/RCP 57-2004; ISO 22000; ISO/TS 22002-1).
+          </p>
+        </section>
+
+        <!-- PRPs / Procedimentos -->
+        <section aria-labelledby="sec4-prps">
+          <h4 id="sec4-prps">PRPs / Procedimentos de Rotina (nesta etapa)</h4>
+          <ul class="checklist">
+            <li><strong>Cadeia fria:</strong> silos refrigerados com agitação suave; setpoint e alarmes configurados; registro contínuo de T.</li>
+            <li><strong>Tempo de estocagem:</strong> definir limite máx. (ex.: ≤24–48&nbsp;h) por estudo de risco; FIFO por lote/fornecedor.</li>
+            <li><strong>CIP/SSOP:</strong> ciclos validados (pré-enxágue, detergente, sanitização, enxágue final) para silos/linhas/clarificador/padronizador; verificação (visual/condutividade/ATP).</li>
+            <li><strong>Integridade:</strong> inspeção de válvulas, gaxetas, filtros/peneiras; substituição programada por horas/ciclos.</li>
+            <li><strong>Utilidades seguras:</strong> água potável; vapor culinário; ar comprimido/gases qualificados quando houver contato incidental.</li>
+          </ul>
+        </section>
+
+        <!-- Árvore de decisão -->
+        <section aria-labelledby="sec4-arvore">
+          <h4 id="sec4-arvore">Árvore de Decisão Codex/NACMCF</h4>
+          <div class="decision-tree">
+            <p><strong>Perigo 1:</strong> Crescimento microbiano por T/tempo em silo</p>
+            <ol>
+              <li><strong>P1.</strong> Existem medidas de controle? <div class="answer ok">Sim — T controlada, limite de tempo, alarmes, registros.</div></li>
+              <li><strong>P2.</strong> A etapa elimina o perigo? <div class="answer warn">Não — apenas previne; eliminação ocorrerá no UHT.</div></li>
+              <li><strong>P3.</strong> Pode atingir níveis inaceitáveis? <div class="answer ok">Sim — abuso de T/tempo eleva contagens.</div></li>
+              <li><strong>P4.</strong> Há etapa posterior que elimine/reduza? <div class="answer ok">Sim — UHT; por isso classificar como <em>oPRP</em>, não PCC.</div></li>
+            </ol>
+            <div class="decision-outcome"><strong>Conclusão:</strong> <span class="badge">Não é PCC</span> — controle por <em>oPRP</em> (cadeia fria + tempo).</div>
+          </div>
+
+          <div class="decision-tree">
+            <p><strong>Perigo 2:</strong> Recontaminação/CIP insuficiente e falha de filtros</p>
+            <ol>
+              <li><strong>P1.</strong> Medidas de controle? <div class="answer ok">Sim — CIP validado e verificado; integridade de filtros/peneiras.</div></li>
+              <li><strong>P2.</strong> Elimina o perigo? <div class="answer warn">Não — preventivo; não é eliminação.</div></li>
+              <li><strong>P3.</strong> Pode ocorrer/aumentar? <div class="answer ok">Sim — se CIP falhar ou filtro romper.</div></li>
+              <li><strong>P4.</strong> Há etapa posterior que elimine/reduza? <div class="answer ok">Sim — UHT reduzirá microrganismos, mas não remove todos os efeitos (enzimas). Classificar como PRP/oPRP.</div></li>
+            </ol>
+            <div class="decision-outcome"><strong>Conclusão:</strong> <span class="badge">Não é PCC</span> — <em>PRP/oPRP</em> (CIP + integridade de filtros).</div>
+          </div>
+        </section>
+
+        <!-- Limites críticos -->
+        <section aria-labelledby="sec4-lc">
+          <h4 id="sec4-lc">Limites críticos</h4>
+          <p>Não aplicável (sem PCC). Para robustez do sistema, defina <em>critérios de oPRP/PRP</em> como:</p>
+          <ul class="bullets">
+            <li><strong>Temperatura do silo</strong> ≤4–6&nbsp;°C com alarme e registro contínuo.</li>
+            <li><strong>Tempo máx. de estocagem</strong> definido por estudo (ex.: ≤24–48&nbsp;h), com controle por lote.</li>
+            <li><strong>CIP validado</strong> (parâmetros de tempo/temperatura/condutividade/concentração) e verificação (visual/ATP/placas conforme plano).</li>
+            <li><strong>Integridade de filtros/peneiras</strong> (malha, diferencial de pressão quando aplicável) e troca por horas/ciclos.</li>
+          </ul>
+        </section>
+
+        <!-- Registros -->
+        <section aria-labelledby="sec4-registros">
+          <h4 id="sec4-registros">Registros associados</h4>
+          <ul class="bullets">
+            <li><strong>Log de temperatura/tempo do silo:</strong> datalogger contínuo + checklist de alarmes; entrada/saída por lote.</li>
+            <li><strong>Relatórios de CIP/SSOP:</strong> ciclos executados, parâmetros e verificações (visual/condutividade/ATP).</li>
+            <li><strong>Manutenção/inspeção:</strong> válvulas, gaxetas, bombas, clarificador, padronizador; trocas programadas de filtros.</li>
+            <li><strong>Controle de qualidade:</strong> amostragens microbiológicas em silo/linha (mesófilos/psicrotróficos) conforme plano.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Ações (Monitoramento, Corretivas, Verificação) (Etapa 4)
+       ================================ -->
+  <div class="modal" id="modal-acoes-4" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-acoes-4">
+      <header class="modal-header">
+        <h3 id="titulo-acoes-4">Etapa 4 — Monitoramento, Ações Corretivas e Verificação</h3>
+        <button class="close" data-close="modal-acoes-4" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Plano de Monitoramento (oPRPs/PRPs) -->
+        <section aria-labelledby="sec4-monitoramento">
+          <h4 id="sec4-monitoramento">Plano de Monitoramento (oPRPs/PRPs)</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th><th>Método</th><th>Frequência</th><th>Responsável</th><th>Registro</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Temperatura do silo</td>
+                  <td>Datalogger + verificação manual</td>
+                  <td>Contínuo + cada turno</td>
+                  <td>Operação/Qualidade</td>
+                  <td>Log T/alarme do silo</td>
+                </tr>
+                <tr>
+                  <td>Tempo de estocagem</td>
+                  <td>Controle por lote (entrada/saída)</td>
+                  <td>Cada transferência</td>
+                  <td>Operação</td>
+                  <td>Ficha de silo (FIFO)</td>
+                </tr>
+                <tr>
+                  <td>CIP de silos/linhas/clarificador/padronizador</td>
+                  <td>Checklist + condutividade/T/tempo + verificação visual/ATP</td>
+                  <td>Por ciclo</td>
+                  <td>Utilidades/Qualidade</td>
+                  <td>Relatório CIP/SSOP</td>
+                </tr>
+                <tr>
+                  <td>Integridade de filtros/peneiras</td>
+                  <td>Inspeção visual / ΔP (se aplicável) / troca por horas</td>
+                  <td>Cada turno + por horas</td>
+                  <td>Operação/Manutenção</td>
+                  <td>Plano de troca/inspeção</td>
+                </tr>
+                <tr>
+                  <td>Qualidade microbiológica</td>
+                  <td>Amostragem de silo/linha (mesófilos/psicrotróficos)</td>
+                  <td>Conforme plano</td>
+                  <td>Laboratório</td>
+                  <td>Relatório microbiológico</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Ações Corretivas -->
+        <section aria-labelledby="sec4-corretivas">
+          <h4 id="sec4-corretivas">Ações Corretivas</h4>
+          <ul class="bullets">
+            <li><strong>T do silo &gt; limite</strong> ou <strong>falha de alarme</strong>: segregar lotes afetados; avaliar risco (tempo acima do limite + resultados micro); reduzir tempo de retenção; corrigir refrigeração; registrar e investigar causa raiz.</li>
+            <li><strong>Tempo de estocagem excedido</strong>: segregar/descartar conforme POP e avaliação; revisar planejamento FIFO; ajustar capacidade/agenda.</li>
+            <li><strong>CIP inadequado</strong>: repetir ciclo; revalidar; realizar verificação (ATP/placas) antes de liberar; avaliar impacto em produto já processado.</li>
+            <li><strong>Filtro danificado</strong>: interromper; substituir; inspecionar produto desde a última verificação; considerar retrabalho/descartar conforme avaliação.</li>
+          </ul>
+        </section>
+
+        <!-- Verificação -->
+        <section aria-labelledby="sec4-verificacao">
+          <h4 id="sec4-verificacao">Procedimentos de Verificação</h4>
+          <ul class="bullets">
+            <li>Revisão de tendências de temperatura/tempo de silo e contagens micro por lote/fornecedor.</li>
+            <li>Auditorias internas de CIP (documental e em campo) e validações periódicas.</li>
+            <li>Calibração de sensores (T/condutividade/tempo) e checagem de alarmes.</li>
+            <li>Programa de manutenção preventiva de válvulas, gaxetas, bombas e clarificador/padronizador.</li>
+            <li>Revisão do APPCC quando houver desvios significativos ou mudanças de processo.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =======================================================
+     ETAPA 5 – Tratamento UHT (Esterilização, Retenção e Resfriamento Asséptico)
+     -------------------------------------------------------
+     Observações:
+     - Mantém padrão estrutural/semântico das etapas 1–4
+     - Identificamos PCC: letalidade térmica UHT (tempo/temperatura + válvula de desvio de fluxo, FDV)
+     - Demais controles: oPRPs/PRPs (SIP, barreiras assépticas, pressões diferenciais, integridade mecânica)
+     ======================================================= -->
+<section id="etapa-5" class="stage-card" aria-labelledby="titulo-etapa-5">
+  <div class="stage-header">
+    <h2 id="titulo-etapa-5">5. Tratamento UHT (Esterilização/Retenção/Resfriamento Asséptico)</h2>
+    <span class="stage-tag">Etapa 5</span>
+  </div>
+  
+     <!-- Ícone estático (não-clicável) indicando que há PCC(s) nesta etapa -->
+    <span class="pcc-flag" role="img" aria-label="Esta etapa possui PCC(s)" title="Esta etapa possui PCC(s)">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path fill="currentColor"
+          d="M12 2a1 1 0 0 1 .86.49l9 15a1 1 0 0 1-.86 1.51H3a1 1 0 0 1-.86-1.51l9-15A1 1 0 0 1 12 2zm0 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-1-6h2v5h-2V9z"/>
+      </svg>
+      <span>PCC</span>
+    </span>
+  </div>
+
+  <div class="stage-body">
+    <p><strong>Descrição do processo:</strong> O leite resfriado é aquecido rapidamente em sistema UHT
+      (tubular ou de placas) até temperatura de esterilização, mantido por tempo de retenção validado e
+      resfriado assepticamente antes de seguir ao tanque asséptico/filler. O conjunto inclui
+      <em>válvula de desvio de fluxo (FDV)</em>, instrumentação crítica (temperatura, vazão, pressões) com
+      registros contínuos e procedimentos de <em>SIP</em> (esterilização in-place) para liberar o circuito estéril.
+      O objetivo é alcançar <em>esterilidade comercial</em> e manter a integridade asséptica até o envase.</p>
+
+    <div class="ref-list">
+      <strong>Referências-chave desta etapa</strong>
+      <ul>
+        <li>Codex Alimentarius — <i>Code of Hygienic Practice for Milk and Milk Products</i> (CAC/RCP 57-2004).</li>
+        <li>ISO 22000 (FSMS) — identificação de PCCs, limites críticos, monitoramento e verificação.</li>
+        <li>ISO/TS 22002-1 — PRPs: limpeza/CIP/SIP, utilidades, projeto higiênico e manutenção.</li>
+      </ul>
+    </div>
+
+    <!-- Botões que abrem os modais desta etapa -->
+    <div class="stage-actions" role="group" aria-label="Ações da etapa 5">
+      <button class="btn" data-open="modal-perigos-5">Análise de perigos</button>
+      <button class="btn" data-open="modal-acoes-5">Ações (Monitoramento, Corretivas, Verificação)</button>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Análise de Perigos / Avaliação de Risco (Etapa 5)
+       ================================ -->
+  <div class="modal" id="modal-perigos-5" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-perigos-5">
+      <header class="modal-header">
+        <h3 id="titulo-perigos-5">Etapa 5 — Análise de Perigos e Avaliação de Risco</h3>
+        <button class="close" data-close="modal-perigos-5" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Perigos potenciais -->
+        <section aria-labelledby="sec5-perigos">
+          <h4 id="sec5-perigos">Perigos potenciais</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Categoria</th>
+                  <th>Exemplos</th>
+                  <th>Consequência</th>
+                  <th>Controles previstos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Biológicos</strong></td>
+                  <td>Letalidade insuficiente (tempo/temperatura baixos); falha da FDV; recontaminação pós-UHT</td>
+                  <td>Perda de inocuidade/esterilidade comercial</td>
+                  <td><strong>PCC:</strong> controle de tempo–temperatura com FDV e registro contínuo; <strong>oPRPs:</strong> SIP, barreiras assépticas, pressões diferenciais</td>
+                </tr>
+                <tr>
+                  <td><strong>Químicos</strong></td>
+                  <td>Resíduos de CIP/SIP; migração do lado utilidades por perda de pressão diferencial; lubrificantes não alimentícios</td>
+                  <td>Risco toxicológico/não conformidade</td>
+                  <td>SSOP/SIP com verificação; pressão do lado produto &gt; utilidades; lubrificantes <em>food grade</em></td>
+                </tr>
+                <tr>
+                  <td><strong>Físicos</strong></td>
+                  <td>Fragmentos metálicos/vedações; incrustações desprendidas</td>
+                  <td>Risco físico/contaminação</td>
+                  <td>Projeto/inspeção higiênica; filtros/peneiras onde aplicável; manutenção preventiva</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="small-note">
+            Fundamentação: a esterilidade comercial exige letalidade adequada e integridade asséptica do circuito
+            até o envase; desvios de T/t ou falhas de FDV exigem desvio automático e segregação (Codex; ISO 22000; ISO/TS 22002-1).
+          </p>
+        </section>
+
+        <!-- PRPs / Procedimentos -->
+        <section aria-labelledby="sec5-prps">
+          <h4 id="sec5-prps">PRPs / Procedimentos de Rotina (nesta etapa)</h4>
+          <ul class="checklist">
+            <li><strong>SIP:</strong> ciclo validado do circuito produto/FDV/holding antes de partida.</li>
+            <li><strong>Pressões diferenciais:</strong> manter pressão do lado produto &gt; meios térmicos para impedir ingressos.</li>
+            <li><strong>Instrumentação crítica:</strong> sensores/registradores calibrados, redundância e integridade de dados.</li>
+            <li><strong>Projeto/manutenção higiênica:</strong> vedações adequadas, ausência de <em>dead-legs</em>, planos de PM.</li>
+          </ul>
+        </section>
+
+        <!-- Árvore de decisão -->
+        <section aria-labelledby="sec5-arvore">
+          <h4 id="sec5-arvore">Árvore de Decisão Codex/NACMCF</h4>
+
+          <!-- Subárvore A: Letalidade térmica UHT -->
+          <div class="decision-tree">
+            <p><strong>Perigo A:</strong> Sobrevivência microbiana por letalidade insuficiente</p>
+            <ol>
+              <li><strong>P1.</strong> Existem medidas de controle nesta etapa?
+                <div class="answer ok">Sim — controle de <em>tempo–temperatura</em> com FDV e registro contínuo.</div>
+              </li>
+              <li><strong>P2.</strong> A etapa elimina/reduz a níveis aceitáveis?
+                <div class="answer ok">Sim — esterilização comercial pelo processo UHT.</div>
+              </li>
+              <li><strong>P3.</strong> Pode atingir níveis inaceitáveis aqui?
+                <div class="answer ok">Sim — se T/t ou FDV falharem.</div>
+              </li>
+              <li><strong>P4.</strong> Há etapa posterior que elimine/reduza?
+                <div class="answer warn">Não — não há nova esterilização subsequente.</div>
+              </li>
+            </ol>
+            <div class="decision-outcome"><strong>Conclusão:</strong> <span class="badge">É PCC</span> — PCC-5A (UHT tempo–temperatura + FDV).</div>
+          </div>
+
+          <!-- Subárvore B: Integridade do circuito asséptico (pós-UHT) -->
+          <div class="decision-tree">
+            <p><strong>Perigo B:</strong> Recontaminação no trecho asséptico antes do envase</p>
+            <ol>
+              <li><strong>P1.</strong> Medidas de controle?
+                <div class="answer ok">Sim — SIP, barreiras assépticas e pressões diferenciais; testes de integridade.</div>
+              </li>
+              <li><strong>P2.</strong> Elimina o perigo?
+                <div class="answer warn">Não — são preventivas.</div>
+              </li>
+              <li><strong>P3.</strong> Pode ocorrer/aumentar?
+                <div class="answer ok">Sim — falhas de barreira/pressão podem recontaminar.</div>
+              </li>
+              <li><strong>P4.</strong> Há etapa posterior que elimine/reduza?
+                <div class="answer warn">Não — segue a envase asséptico; classificar como <em>oPRPs</em>.</div>
+              </li>
+            </ol>
+            <div class="decision-outcome"><strong>Conclusão:</strong> <span class="badge">Não é PCC</span> — controles via <em>oPRPs</em> (SIP + pressões diferenciais).</div>
+          </div>
+        </section>
+
+        <!-- Limites críticos (apenas para PCCs) -->
+        <section aria-labelledby="sec5-lc">
+          <h4 id="sec5-lc">Limites críticos (PCC-5A)</h4>
+          <ul class="bullets">
+            <li><strong>Temperatura mínima no final do tubo de retenção</strong> (sensor crítico) <em>≥ valor validado</em> para o produto/equipamento.</li>
+            <li><strong>Tempo de retenção efetivo</strong> <em>≥ valor validado</em> (cálculo por vazão × volume do tubo; ensaios de validação).</li>
+            <li><strong>FDV</strong> deve <em>desviar automaticamente</em> quando T &lt; LC ou quando houver falha de sensor/registrador.</li>
+          </ul>
+          <p class="small-note">Valores exatos são definidos por estudos de validação (produto, esporulados-alvo, configuração) e requisitos legais no Brasil.</p>
+        </section>
+
+        <!-- Registros -->
+        <section aria-labelledby="sec5-registros">
+          <h4 id="sec5-registros">Registros associados</h4>
+          <ul class="bullets">
+            <li><strong>Gráficos eletrônicos</strong> de T (ponto crítico), vazão e estado da FDV, com carimbo de data/hora.</li>
+            <li><strong>Protocolos de validação</strong> de T/t (inclui testes de tempo de retenção e função de desvio).</li>
+            <li><strong>Logs de SIP</strong>, calibrações e manutenções de instrumentos/válvulas/trocadores.</li>
+            <li><strong>Relatórios de desvios</strong> e decisão de destinação de produto quando não conforme.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Ações (Monitoramento, Corretivas, Verificação) (Etapa 5)
+       ================================ -->
+  <div class="modal" id="modal-acoes-5" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-acoes-5">
+      <header class="modal-header">
+        <h3 id="titulo-acoes-5">Etapa 5 — Monitoramento, Ações Corretivas e Verificação</h3>
+        <button class="close" data-close="modal-acoes-5" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Plano de Monitoramento (PCC e oPRPs) -->
+        <section aria-labelledby="sec5-monitoramento">
+          <h4 id="sec5-monitoramento">Plano de Monitoramento (PCC e oPRPs)</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th><th>Método</th><th>Frequência</th><th>Responsável</th><th>Registro</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>PCC-5A</strong> — Temperatura no fim do holding</td>
+                  <td>Leitura contínua (RTD/registrador) com alarme e FDV</td>
+                  <td><strong>Contínuo</strong></td>
+                  <td>Operação / Qualidade</td>
+                  <td>Gráfico eletrônico / relatório de bateladas</td>
+                </tr>
+                <tr>
+                  <td><strong>PCC-5A</strong> — Tempo de retenção</td>
+                  <td>Cálculo por vazão × volume; teste periódico de tempo</td>
+                  <td>Contínuo (vazão) + periódico</td>
+                  <td>Engenharia / Qualidade</td>
+                  <td>Planilha/relatório de validação</td>
+                </tr>
+                <tr>
+                  <td>Integridade do trecho asséptico (oPRP)</td>
+                  <td>SIP validado; verificação de pressões diferenciais; testes de integridade</td>
+                  <td>Por partida + por turno</td>
+                  <td>Operação / Utilidades</td>
+                  <td>Log de SIP / checklist asséptico</td>
+                </tr>
+                <tr>
+                  <td>Pressão diferencial produto × utilidades (oPRP)</td>
+                  <td>Transmissores/manômetros com alarmes</td>
+                  <td>Contínuo</td>
+                  <td>Operação</td>
+                  <td>Histórico de tendência</td>
+                </tr>
+                <tr>
+                  <td>Resíduos de CIP/SIP (oPRP)</td>
+                  <td>Condutividade/organoléptico/ATP conforme plano</td>
+                  <td>Por ciclo</td>
+                  <td>Qualidade</td>
+                  <td>Relatório CIP/SIP</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Ações Corretivas -->
+        <section aria-labelledby="sec5-corretivas">
+          <h4 id="sec5-corretivas">Ações Corretivas</h4>
+          <ul class="bullets">
+            <li><strong>T &lt; LC ou falha de sensor/registrador:</strong> FDV em desvio automático; isolar produto desde o último ponto conforme; reprocessar/descartar conforme POP; investigar causa (sensor, FDV, aquecimento) e registrar.</li>
+            <li><strong>Tempo efetivo &lt; validado (vazão alta):</strong> reduzir vazão; repetir teste de tempo; destino seguro ao produto afetado; treinar operadores.</li>
+            <li><strong>Falha de SIP/pressão diferencial:</strong> interromper produção; repetir SIP; verificar integridade; segregar produto potencialmente afetado.</li>
+          </ul>
+        </section>
+
+        <!-- Verificação -->
+        <section aria-labelledby="sec5-verificacao">
+          <h4 id="sec5-verificacao">Procedimentos de Verificação</h4>
+          <ul class="bullets">
+            <li><strong>Validação/reateste</strong> periódico do tempo de retenção (ensaio/traçador) e <strong>teste funcional da FDV</strong> antes de partidas.</li>
+            <li><strong>Calibração</strong> de RTDs/registradores/medidores de vazão; verificação de integridade e segurança dos dados (ALCOA+).</li>
+            <li><strong>Auditorias internas</strong> do sistema UHT (documental + em campo) e <strong>revisão de tendências</strong> de T/vazão/FDV.</li>
+            <li><strong>Testes de esterilidade comercial</strong> amostrais (incubação/avaliação) para verificação do processo.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- =======================================================
+     ETAPA 6 – Envase Asséptico e Fechamento
+     -------------------------------------------------------
+     Observações:
+     - Identificamos PCCs para: (A) Esterilização de embalagem / superfície interna e (B) Resíduo de peróxido de hidrogênio (H2O2)
+     - Demais controles: oPRPs/PRPs (ambiente asséptico, filtros de ar estéril, sobrepressão, SIP, integridade mecânica, torque/selagem)
+     ======================================================= -->
+<section id="etapa-6" class="stage-card" aria-labelledby="titulo-etapa-6">
+<div class="stage-header">
+    <h2 id="titulo-etapa-6">6. Envase Asséptico e Fechamento</h2>
+    <span class="stage-tag">Etapa 6</span>
+	</div>
+
+    <!-- Ícone estático (não-clicável) indicando que há PCC(s) nesta etapa -->
+    <span class="pcc-flag" role="img" aria-label="Esta etapa possui PCC(s)" title="Esta etapa possui PCC(s)">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path fill="currentColor"
+          d="M12 2a1 1 0 0 1 .86.49l9 15a1 1 0 0 1-.86 1.51H3a1 1 0 0 1-.86-1.51l9-15A1 1 0 0 1 12 2zm0 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-1-6h2v5h-2V9z"/>
+      </svg>
+      <span>PCC</span>
+    </span>
+  </div>
+  
+   <div class="stage-body">
+    <p><strong>Descrição do processo:</strong> O leite UHT sai do trecho estéril para o <em>tanque asséptico</em> e segue
+      para o <em>filler</em> em câmara asséptica (ar estéril HEPA e sobrepressão). As superfícies internas da embalagem
+      (carton/bobina/tampas) são <em>esterilizadas</em> (tipicamente com H<sub>2</sub>O<sub>2</sub> + calor/UV), o produto é
+      dosado, a embalagem é <em>selada</em> (temperatura/pressão/tempo) e resquícios de H<sub>2</sub>O<sub>2</sub> são removidos/evaporados
+      para atender ao limite legal. Mantêm-se barreiras assépticas e pressões diferenciais para evitar recontaminação até a saída.</p>
+
+    <div class="ref-list">
+      <strong>Referências-chave desta etapa</strong>
+      <ul>
+        <li>Codex — <i>Code of Hygienic Practice for Milk and Milk Products</i> (CAC/RCP 57-2004).</li>
+        <li>ISO 22000 (FSMS) — definição de PCCs, limites críticos, monitoramento e verificação.</li>
+        <li>ISO/TS 22002-1 — PRPs: projeto higiênico, limpeza/SIP, utilidades e ar comprimido/filtragem HEPA.</li>
+      </ul>
+    </div>
+
+    <!-- Botões que abrem os modais desta etapa -->
+    <div class="stage-actions" role="group" aria-label="Ações da etapa 6">
+      <button class="btn" data-open="modal-perigos-6">Análise de perigos</button>
+      <button class="btn" data-open="modal-acoes-6">Ações (Monitoramento, Corretivas, Verificação)</button>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Análise de Perigos / Avaliação de Risco (Etapa 6)
+       ================================ -->
+  <div class="modal" id="modal-perigos-6" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-perigos-6">
+      <header class="modal-header">
+        <h3 id="titulo-perigos-6">Etapa 6 — Análise de Perigos e Avaliação de Risco</h3>
+        <button class="close" data-close="modal-perigos-6" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Perigos potenciais -->
+        <section aria-labelledby="sec6-perigos">
+          <h4 id="sec6-perigos">Perigos potenciais</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Categoria</th>
+                  <th>Exemplos</th>
+                  <th>Consequência</th>
+                  <th>Controles previstos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Biológicos</strong></td>
+                  <td>Falha na esterilização de embalagem/tampas; falha de barreiras assépticas (HEPA/sobrepressão); recontaminação de bicos/selagem</td>
+                  <td>Perda de esterilidade comercial; crescimento microbiano em prateleira</td>
+                  <td><strong>PCC:</strong> parâmetros de esterilização de embalagem (H<sub>2</sub>O<sub>2</sub> + calor/UV) e liberação do sistema; <strong>oPRPs:</strong> HEPA, sobrepressão, SIP, integridade mecânica e sanitária</td>
+                </tr>
+                <tr>
+                  <td><strong>Químicos</strong></td>
+                  <td><u>Resíduo de H<sub>2</sub>O<sub>2</sub></u> acima do limite legal; lubrificantes não alimentícios; migração de materiais</td>
+                  <td>Não conformidade legal; risco toxicológico</td>
+                  <td><strong>PCC:</strong> controle e medição de resíduo de H<sub>2</sub>O<sub>2</sub> pós-esterilização; <strong>PRPs/oPRPs:</strong> uso de lubrificantes <em>food grade</em>, especificação de contato com alimento</td>
+                </tr>
+                <tr>
+                  <td><strong>Físicos</strong></td>
+                  <td>Partículas de embalagem/tampas; fragmentos de vedação; corpos estranhos por falha de limpeza</td>
+                  <td>Risco físico/lesão; quebras de selagem</td>
+                  <td>Projeto higiênico; inspeção/aspiração; manutenção e limpeza validadas (SIP/CIP do trecho asséptico)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="small-note">
+            Fundamentação: a manutenção da esterilidade comercial depende da correta esterilização da embalagem,
+            do controle de resíduos químicos e da integridade do ambiente asséptico até o fechamento (Codex; ISO 22000; ISO/TS 22002-1).
+          </p>
+        </section>
+
+        <!-- PRPs / Procedimentos -->
+        <section aria-labelledby="sec6-prps">
+          <h4 id="sec6-prps">PRPs / Procedimentos de Rotina (nesta etapa)</h4>
+          <ul class="checklist">
+            <li><strong>SIP</strong> do trecho asséptico/filler antes de partida, com parâmetros validados.</li>
+            <li><strong>Ambiente asséptico:</strong> filtros HEPA qualificados; <em>overpressure</em> estável; barreiras físicas e sanitárias; portas com intertravamento.</li>
+            <li><strong>Esterilização de embalagem/tampas:</strong> aplicação controlada de H<sub>2</sub>O<sub>2</sub> + calor/UV; tempo de contato; remoção/evaporação adequada.</li>
+            <li><strong>Selagem:</strong> controle de T/pressão/tempo; torque de tampas; inspeção visual/automática de selos.</li>
+            <li><strong>Utilidades:</strong> ar/gás estéril e qualificado; vapor culinário; água de enxágue conforme especificação.</li>
+          </ul>
+        </section>
+
+        <!-- Árvore de decisão -->
+        <section aria-labelledby="sec6-arvore">
+          <h4 id="sec6-arvore">Árvore de Decisão Codex/NACMCF</h4>
+
+          <!-- Subárvore A: Esterilização de embalagem (Biológico) -->
+          <div class="decision-tree">
+            <p><strong>Perigo A:</strong> Falha na esterilização da embalagem/tampas</p>
+            <ol>
+              <li><strong>P1.</strong> Existem medidas de controle nesta etapa?
+                <div class="answer ok">Sim — parâmetros de esterilização (conc. H<sub>2</sub>O<sub>2</sub>, T, tempo, UV) e verificação de desempenho.</div>
+              </li>
+              <li><strong>P2.</strong> A etapa elimina/reduz a níveis aceitáveis?
+                <div class="answer ok">Sim — descontaminação da superfície interna antes do contato produto.</div>
+              </li>
+              <li><strong>P3.</strong> Pode atingir níveis inaceitáveis aqui?
+                <div class="answer ok">Sim — se parâmetros caírem abaixo do validado.</div>
+              </li>
+              <li><strong>P4.</strong> Há etapa posterior que elimine/reduza?
+                <div class="answer warn">Não — após o fechamento não há nova esterilização.</div>
+              </li>
+            </ol>
+            <div class="decision-outcome">
+              <strong>Conclusão:</strong> <span class="badge">É PCC</span> — PCC-6A (Esterilização de embalagem).
+            </div>
+          </div>
+
+          <!-- Subárvore B: Resíduo de H2O2 (Químico) -->
+          <div class="decision-tree">
+            <p><strong>Perigo B:</strong> Resíduo de H<sub>2</sub>O<sub>2</sub> acima do limite</p>
+            <ol>
+              <li><strong>P1.</strong> Medidas de controle?
+                <div class="answer ok">Sim — evaporação/removal controlada + medição do resíduo em linha/amostragem.</div>
+              </li>
+              <li><strong>P2.</strong> Elimina/reduz a níveis aceitáveis?
+                <div class="answer ok">Sim — controle do resíduo ≤ limite legal vigente.</div>
+              </li>
+              <li><strong>P3.</strong> Pode atingir níveis inaceitáveis?
+                <div class="answer ok">Sim — se evaporação inadequada ou overdose.</div>
+              </li>
+              <li><strong>P4.</strong> Há etapa posterior que elimine/reduza?
+                <div class="answer warn">Não — produto já está fechado.</div>
+              </li>
+            </ol>
+            <div class="decision-outcome">
+              <strong>Conclusão:</strong> <span class="badge">É PCC</span> — PCC-6B (Resíduo de H<sub>2</sub>O<sub>2</sub>).
+            </div>
+          </div>
+
+          <!-- Subárvore C: Ambiente asséptico e fechamento (conjunto, oPRPs) -->
+          <div class="decision-tree">
+            <p><strong>Perigos C (conjunto):</strong> Falha de HEPA/sobrepressão, integridade de bicos/selos/torque</p>
+            <ol>
+              <li><strong>P1.</strong> Existem medidas de controle?
+                <div class="answer ok">Sim — qualificação de filtros, monitor de pressão diferencial, SIP, controle de selagem/torque.</div>
+              </li>
+              <li><strong>P2.</strong> A etapa elimina o perigo?
+                <div class="answer warn">Não — são preventivas.</div>
+              </li>
+              <li><strong>P3.</strong> Pode ocorrer/aumentar?
+                <div class="answer ok">Sim — se perder barreira/pressão ou selagem.</div>
+              </li>
+              <li><strong>P4.</strong> Há etapa posterior que elimine/reduza?
+                <div class="answer warn">Não — produto segue fechado; classificar como <em>oPRPs</em> robustos.</div>
+              </li>
+            </ol>
+            <div class="decision-outcome">
+              <strong>Conclusão:</strong> <span class="badge">Não é PCC</span> — controles via <em>oPRPs</em> (ambiente asséptico + selagem).
+            </div>
+          </div>
+        </section>
+
+        <!-- Limites críticos (apenas para PCCs) -->
+        <section aria-labelledby="sec6-lc">
+          <h4 id="sec6-lc">Limites críticos (PCC-6A e PCC-6B)</h4>
+          <ul class="bullets">
+            <li><strong>PCC-6A — Esterilização de embalagem:</strong> Parâmetros <em>≥ valores validados</em> (ex.: concentração de H<sub>2</sub>O<sub>2</sub>, temperatura, tempo de contato, intensidade UV quando aplicável). Qualquer queda abaixo do validado ⇒ <em>parar e segregar</em>.</li>
+            <li><strong>PCC-6B — Resíduo de H<sub>2</sub>O<sub>2</sub>:</strong> Resíduo na embalagem/parede interna <em>≤ limite legal vigente no Brasil</em>. Leituras acima ⇒ <em>bloquear produto</em> e ajustar processo.</li>
+          </ul>
+          <p class="small-note">Outros parâmetros (HEPA/sobrepressão/selagem) são especificações de oPRPs/PRPs; não constituem limites críticos de PCC.</p>
+        </section>
+
+        <!-- Registros -->
+        <section aria-labelledby="sec6-registros">
+          <h4 id="sec6-registros">Registros associados</h4>
+          <ul class="bullets">
+            <li><strong>Logs PCC-6A:</strong> registros contínuos/por batelada de conc. H<sub>2</sub>O<sub>2</sub>, T, tempo, UV (quando houver), checks de desempenho.</li>
+            <li><strong>Logs PCC-6B:</strong> resultados de resíduo de H<sub>2</sub>O<sub>2</sub> por frequência definida (em linha/amostragem), método, limites e liberações.</li>
+            <li>Relatórios de SIP; qualificação de filtros HEPA e monitoramento de sobrepressão; calibrações; inspeções de selagem/torque; desvios e CAPAs.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Ações (Monitoramento, Corretivas, Verificação) (Etapa 6)
+       ================================ -->
+  <div class="modal" id="modal-acoes-6" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-acoes-6">
+      <header class="modal-header">
+        <h3 id="titulo-acoes-6">Etapa 6 — Monitoramento, Ações Corretivas e Verificação</h3>
+        <button class="close" data-close="modal-acoes-6" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Plano de Monitoramento (inclui PCCs) -->
+        <section aria-labelledby="sec6-monitoramento">
+          <h4 id="sec6-monitoramento">Plano de Monitoramento (PCCs e oPRPs)</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th><th>Método</th><th>Frequência</th><th>Responsável</th><th>Registro</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>PCC-6A</strong> — Esterilização de embalagem</td>
+                  <td>Medições de conc. H<sub>2</sub>O<sub>2</sub>, T, tempo, UV (se aplicável) + checagens de desempenho</td>
+                  <td><strong>Contínuo/por batelada</strong> conforme validação</td>
+                  <td>Operação / Qualidade</td>
+                  <td>Log PCC-6A (parâmetros & liberações)</td>
+                </tr>
+                <tr>
+                  <td><strong>PCC-6B</strong> — Resíduo de H<sub>2</sub>O<sub>2</sub></td>
+                  <td>Método validado de resíduo (em linha ou amostragem)</td>
+                  <td>Conforme plano (ex.: por setup/turno/lote)</td>
+                  <td>Qualidade</td>
+                  <td>Log PCC-6B (resultados & decisões)</td>
+                </tr>
+                <tr>
+                  <td>Ambiente asséptico (oPRP)</td>
+                  <td>ΔP/overpressure; integridade HEPA; contagem de partículas, quando aplicável</td>
+                  <td>Contínuo (ΔP) + rotina (HEPA)</td>
+                  <td>Utilidades / Qualidade</td>
+                  <td>Histórico de pressão / relatórios HEPA</td>
+                </tr>
+                <tr>
+                  <td>Selagem/torque (oPRP)</td>
+                  <td>Teste de “peel”, inspeção visual, medições de torque/selagem</td>
+                  <td>Cada setup + amostral por lote</td>
+                  <td>Operação / Qualidade</td>
+                  <td>Relatório de selagem/torque</td>
+                </tr>
+                <tr>
+                  <td>Resíduos de SIP/CIP (oPRP)</td>
+                  <td>Condutividade/organoléptico/ATP conforme POP</td>
+                  <td>Por ciclo</td>
+                  <td>Qualidade</td>
+                  <td>Relatório SIP/CIP</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Ações Corretivas -->
+        <section aria-labelledby="sec6-corretivas">
+          <h4 id="sec6-corretivas">Ações Corretivas</h4>
+          <ul class="bullets">
+            <li><strong>PCC-6A fora de LC:</strong> parar linha; isolar produto desde a última condição “OK”; ajustar parâmetros; repetir validação funcional; só liberar após conformidade.</li>
+            <li><strong>PCC-6B acima do limite:</strong> segregar produto; ajustar evaporação/dose; re-testar; destino seguro do lote; investigação de causa raiz e treinamento.</li>
+            <li><strong>Perda de sobrepressão/HEPA:</strong> interromper enchimento; recuperar barreira; reexecutar SIP se necessário; avaliação de impacto no produto.</li>
+            <li><strong>Falhas de selagem/torque:</strong> segregar amostras/produtos afetados; ajustar parâmetros; intensificar inspeção; descartar/retrabalhar conforme POP.</li>
+          </ul>
+        </section>
+
+        <!-- Verificação -->
+        <section aria-labelledby="sec6-verificacao">
+          <h4 id="sec6-verificacao">Procedimentos de Verificação</h4>
+          <ul class="bullets">
+            <li><strong>Validação/qualificação</strong> inicial e periódica da esterilização de embalagem (estudos de esporos indicadores/desempenho).</li>
+            <li><strong>Calibração</strong> de sensores (temperatura, concentração, tempo, UV) e verificações independentes dos registros.</li>
+            <li><strong>Auditorias internas</strong> do sistema asséptico (documental + em campo) e <strong>revisão de tendências</strong> de PCC-6A/6B.</li>
+            <li><strong>Testes de esterilidade comercial</strong> amostrais (incubação/avaliação) para verificação do processo.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =======================================================
+     ETAPA 7 – Armazenagem, Rotulagem e Distribuição
+     -------------------------------------------------------
+     Observações:
+     - Mantém padrão estrutural/semântico das etapas anteriores
+     - Para leite UHT, normalmente NÃO há PCC aqui; controles via oPRPs/PRPs:
+       integridade da embalagem, ambiente asséptico preservado, higiene de armazém,
+       pragas, integridade de carga, rastreabilidade e FEFO
+     ======================================================= -->
+<section id="etapa-7" class="stage-card" aria-labelledby="titulo-etapa-7">
+  <div class="stage-header">
+    <h2 id="titulo-etapa-7">7. Armazenagem, Rotulagem e Distribuição</h2>
+    <span class="stage-tag">Etapa 7</span>
+  </div>
+
+  <div class="stage-body">
+    <p><strong>Descrição do processo:</strong> Após o envase asséptico e liberação, os volumes são paletizados,
+      rotulados (informações legais, lote e validade) e encaminhados para <em>armazenagem seca</em> (ambiente limpo,
+      ventilado, protegido de sol/umidade/odores) até a expedição. A distribuição é realizada em veículos
+      limpos e adequados para alimentos, com proteção física da carga. Para UHT, o armazenamento é em
+      temperatura ambiente; evitar <em>extremos</em> de calor e incidência solar direta para preservar qualidade
+      e integridade da embalagem. A rastreabilidade por lote acompanha todo o fluxo (FEFO).</p>
+
+    <div class="ref-list">
+      <strong>Referências-chave desta etapa</strong>
+      <ul>
+        <li>Codex — <i>General Principles of Food Hygiene</i> e <i>Code of Hygienic Practice for Milk and Milk Products</i>.</li>
+        <li>ISO 22000 (FSMS) — comunicação, rastreabilidade, controle operacional e verificação.</li>
+        <li>ISO/TS 22002-1 — PRPs: limpeza/armazém, controle de pragas, transporte, manutenção, utilidades.</li>
+        <li>Boas Práticas de Armazenagem e Distribuição (GDP) aplicáveis no Brasil (requisitos de higiene e transporte).</li>
+      </ul>
+    </div>
+
+    <!-- Botões que abrem os modais desta etapa -->
+    <div class="stage-actions" role="group" aria-label="Ações da etapa 7">
+      <button class="btn" data-open="modal-perigos-7">Análise de perigos</button>
+      <button class="btn" data-open="modal-acoes-7">Ações (Monitoramento, Corretivas, Verificação)</button>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Análise de Perigos / Avaliação de Risco (Etapa 7)
+       ================================ -->
+  <div class="modal" id="modal-perigos-7" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-perigos-7">
+      <header class="modal-header">
+        <h3 id="titulo-perigos-7">Etapa 7 — Análise de Perigos e Avaliação de Risco</h3>
+        <button class="close" data-close="modal-perigos-7" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Perigos potenciais -->
+        <section aria-labelledby="sec7-perigos">
+          <h4 id="sec7-perigos">Perigos potenciais</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Categoria</th>
+                  <th>Exemplos</th>
+                  <th>Consequência</th>
+                  <th>Controles previstos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Biológicos</strong></td>
+                  <td>Recontaminação por <em>falha de integridade</em> da embalagem (microvazamentos, selagem danificada);
+                      contaminação cruzada por pragas/ambiente sujo</td>
+                  <td>Perda de esterilidade comercial; deterioração e risco ao consumidor</td>
+                  <td>Inspeção de integridade de embalagens/pallets; higiene e <em>housekeeping</em> do armazém; controle de pragas; segregação de avariados</td>
+                </tr>
+                <tr>
+                  <td><strong>Químicos</strong></td>
+                  <td>Odor/taints por coarmazenagem com químicos/odorizantes; migração aumentada por calor extremo; resíduos de limpeza no armazém/veículos</td>
+                  <td>Não conformidade legal/organoléptica</td>
+                  <td>Proibição de químicos/odorizantes próximos; temperatura ambiente controlada (sem extremos); SSOP de limpeza com enxágue e liberação</td>
+                </tr>
+                <tr>
+                  <td><strong>Físicos</strong></td>
+                  <td>Quedas/impactos, perfurações, farpas de pallets, lascas plásticas, vidro de luminárias</td>
+                  <td>Risco físico e perda de integridade</td>
+                  <td>Pallets íntegros (preferência por PBR/plástico); proteção de cantos/filmes; luminárias protegidas; práticas seguras de empilhamento</td>
+                </tr>
+                <tr>
+                  <td><strong>Fraude/Integridade</strong></td>
+                  <td>Desvio/alteração de rótulos, manipulação indevida de datas, violação de lacres de carga</td>
+                  <td>Rastreabilidade comprometida; risco regulatório</td>
+                  <td>Controles de acesso; lacres/documentação de transporte; reconciliação de lotes; sistema FEFO</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="small-note">
+            Fundamentação: pós-processo térmico, a segurança depende de manter a <em>integridade da embalagem</em>,
+            boas práticas de armazenamento/transporte e rastreabilidade; não há etapas subsequentes que eliminem perigos
+            introduzidos aqui — controles são PRPs e, conforme risco, oPRPs (Codex; ISO 22000; ISO/TS 22002-1).
+          </p>
+        </section>
+
+        <!-- PRPs / Procedimentos -->
+        <section aria-labelledby="sec7-prps">
+          <h4 id="sec7-prps">PRPs / Procedimentos de Rotina (nesta etapa)</h4>
+          <ul class="checklist">
+            <li><strong>Integridade de embalagem:</strong> inspeção visual por amostragem/lote; segregação de caixas amassadas, <em>leakers</em> e sujidades.</li>
+            <li><strong>Armazenagem seca:</strong> limpeza, ventilação, afastamento do piso/parede, proteção contra sol/umidade/odores.</li>
+            <li><strong>Controle de pragas:</strong> barreiras, iscas monitoradas, saneamento e registros.</li>
+            <li><strong>Gestão de estoque:</strong> FEFO, limites de empilhamento/altura, paletização estável, identificação clara de lotes.</li>
+            <li><strong>Transporte:</strong> veículos limpos/sem odores, sem co-carga incompatível; amarração e proteção da carga; conferência de lacres/documentos.</li>
+          </ul>
+        </section>
+
+        <!-- Árvore de decisão -->
+        <section aria-labelledby="sec7-arvore">
+          <h4 id="sec7-arvore">Árvore de Decisão Codex/NACMCF</h4>
+          <div class="decision-tree">
+            <p><strong>Perigo crítico avaliado:</strong> perda de integridade da embalagem (pós-processo).</p>
+            <ol>
+              <li><strong>P1.</strong> Existem medidas de controle nesta etapa?
+                <div class="answer ok">Sim — inspeções, segregação de avariados, boas práticas de manuseio, pragas e higiene.</div>
+              </li>
+              <li><strong>P2.</strong> A etapa elimina/reduz a níveis aceitáveis?
+                <div class="answer warn">Não — controles são preventivos/detectivos; não há “reesterilização”.</div>
+              </li>
+              <li><strong>P3.</strong> Pode ocorrer/aumentar a níveis inaceitáveis?
+                <div class="answer ok">Sim — danos físicos, calor extremo, coarmazenagem inadequada.</div>
+              </li>
+              <li><strong>P4.</strong> Há etapa posterior que elimine/reduza o perigo?
+                <div class="answer warn">Não — produto segue ao consumidor; classificar como <em>oPRPs/PRPs</em>.</div>
+              </li>
+            </ol>
+            <div class="decision-outcome">
+              <strong>Conclusão:</strong> <span class="badge">Não é PCC</span> — controle por <em>oPRPs/PRPs</em> (integridade, higiene, pragas, FEFO).
+            </div>
+          </div>
+        </section>
+
+        <!-- Limites críticos -->
+        <section aria-labelledby="sec7-lc">
+          <h4 id="sec7-lc">Limites críticos</h4>
+          <p>Não aplicável (sem PCC). Estabelecer <em>critérios de PRP/oPRP</em> como:</p>
+          <ul class="bullets">
+            <li><strong>Integridade de embalagem:</strong> ausência de vazamentos/estufamento; taxa máxima de avaria &le; meta definida (ex.: ≤0,1%/lote).</li>
+            <li><strong>Armazenagem:</strong> ambiente seco, limpo, sem odores; evitar exposição direta ao sol e temperaturas extremas.</li>
+            <li><strong>Transporte:</strong> veículo limpo, sem químicos/odores; paletes íntegros; lacres/documentos conferidos.</li>
+          </ul>
+        </section>
+
+        <!-- Registros -->
+        <section aria-labelledby="sec7-registros">
+          <h4 id="sec7-registros">Registros associados</h4>
+          <ul class="bullets">
+            <li>Checklists de armazém (limpeza, pragas, integridade de pilhas/paletes, temperatura ambiente).</li>
+            <li>Relatórios de inspeção de integridade de embalagem e segregação de avariados (<em>hold</em> / destinação).</li>
+            <li>Rastreabilidade: lotes, FEFO, ordens de expedição, números de lacre de carga.</li>
+            <li>Qualificação de veículos/transportadoras; limpeza e liberação de veículos.</li>
+            <li>Registros de reclamações/devoluções e análise de tendências (CAPA).</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Ações (Monitoramento, Corretivas, Verificação) (Etapa 7)
+       ================================ -->
+  <div class="modal" id="modal-acoes-7" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-acoes-7">
+      <header class="modal-header">
+        <h3 id="titulo-acoes-7">Etapa 7 — Monitoramento, Ações Corretivas e Verificação</h3>
+        <button class="close" data-close="modal-acoes-7" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Plano de Monitoramento (oPRPs/PRPs) -->
+        <section aria-labelledby="sec7-monitoramento">
+          <h4 id="sec7-monitoramento">Plano de Monitoramento (oPRPs/PRPs)</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th><th>Método</th><th>Frequência</th><th>Responsável</th><th>Registro</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Integridade de embalagem/pallet</td>
+                  <td>Inspeção visual por amostragem (checklist)</td>
+                  <td>Por lote / por turno</td>
+                  <td>Armazém / Qualidade</td>
+                  <td>Checklist de integridade</td>
+                </tr>
+                <tr>
+                  <td>Higiene e pragas no armazém</td>
+                  <td>Rondas, mapa de iscas, evidências</td>
+                  <td>Semanal / Mensal</td>
+                  <td>Armazém / Terceiro</td>
+                  <td>Relatórios de pragas</td>
+                </tr>
+                <tr>
+                  <td>Gestão de estoque (FEFO)</td>
+                  <td>Conferência de validades/rotação</td>
+                  <td>Diária</td>
+                  <td>Armazém</td>
+                  <td>Relatório de rotação</td>
+                </tr>
+                <tr>
+                  <td>Qualificação de veículos</td>
+                  <td>Inspeção de limpeza/odores/integridade</td>
+                  <td>Cada carregamento</td>
+                  <td>Expedição</td>
+                  <td>Checklist de veículo</td>
+                </tr>
+                <tr>
+                  <td>Documentação e lacres</td>
+                  <td>Conferência de notas, lotes e lacres</td>
+                  <td>Cada carga</td>
+                  <td>Expedição</td>
+                  <td>Romaneio + registro de lacres</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="small-note"><strong>Siglas:</strong> PRP = Programa de Pré-Requisito; oPRP = PRP Operacional; FEFO = <em>First Expire, First Out</em>; CAPA = <em>Corrective and Preventive Action</em>.</p>
+        </section>
+
+        <!-- Ações Corretivas -->
+        <section aria-labelledby="sec7-corretivas">
+          <h4 id="sec7-corretivas">Ações Corretivas</h4>
+          <ul class="bullets">
+            <li><strong>Embalagem danificada/leak:</strong> segregar e identificar; avaliar extensão; descartar/retrabalhar conforme POP; investigar causa (empilhamento, transporte).</li>
+            <li><strong>Presença de pragas/contaminação:</strong> bloquear área/lot es; acionar controle de pragas; intensificar limpeza; revisar barreiras.</li>
+            <li><strong>Coarmazenagem inadequada/odores:</strong> remover fontes; segregar produto exposto; avaliar sensorial; reforçar política de segregação.</li>
+            <li><strong>Falha de FEFO/rastreabilidade:</strong> executar reconciliação de lotes; ajustar sistema; treinamento e CAPA.</li>
+            <li><strong>Veículo reprovado:</strong> impedir carregamento; corrigir/ substituir veículo; registrar e notificar transportadora.</li>
+          </ul>
+        </section>
+
+        <!-- Verificação -->
+        <section aria-labelledby="sec7-verificacao">
+          <h4 id="sec7-verificacao">Procedimentos de Verificação</h4>
+          <ul class="bullets">
+            <li><strong>Mock recall</strong> periódico (rastreabilidade “ponta a ponta”).</li>
+            <li><strong>Auditorias internas</strong> de armazém/expedição e avaliações de transportadoras.</li>
+            <li><strong>Análise de tendências</strong> de avarias, reclamações e devoluções; implementação de CAPAs.</li>
+            <li><strong>Verificação de rotulagem</strong> (conformidade regulatória) por amostragem.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =======================================================
+     ETAPA 8 – Varejo (Ponto de Venda), Pós-Mercado e Recall
+     -------------------------------------------------------
+     Observações:
+     - Mantém padrão estrutural/semântico das etapas anteriores
+     - Para leite UHT, usualmente NÃO há PCC aqui; controles via oPRPs/PRPs:
+       integridade de embalagem, condições de exposição, pragas, rastreabilidade,
+       gestão de reclamações/devoluções e capacidade de recall
+     ======================================================= -->
+<section id="etapa-8" class="stage-card" aria-labelledby="titulo-etapa-8">
+  <div class="stage-header">
+    <h2 id="titulo-etapa-8">8. Varejo (Ponto de Venda), Pós-Mercado e Recall</h2>
+    <span class="stage-tag">Etapa 8</span>
+  </div>
+
+  <div class="stage-body">
+    <p><strong>Descrição do processo:</strong> Após distribuição, o produto é exposto em <em>PDV</em> (ponto de venda) em
+      temperatura ambiente, protegido de calor/luz solar direta/umidade/odores. A equipe do varejo deve manter
+      <em>FEFO</em> (First Expire, First Out), higiene do ambiente e integridade das embalagens. No pós-mercado,
+      o fabricante monitora reclamações, devoluções e indícios de não conformidade, mantendo capacidade de
+      <em>recall</em> rápido e rastreabilidade de lotes do PDV ao fornecedor.</p>
+
+    <div class="ref-list">
+      <strong>Referências-chave desta etapa</strong>
+      <ul>
+        <li>Codex — <i>General Principles of Food Hygiene</i> e <i>Code of Hygienic Practice for Milk and Milk Products</i>.</li>
+        <li>ISO 22000 (FSMS) — comunicação externa, rastreabilidade, controle operacional e verificação.</li>
+        <li>ISO/TS 22002-1 — PRPs: limpeza, pragas, manutenção, transporte/armazenagem.</li>
+      </ul>
+    </div>
+
+    <!-- Botões que abrem os modais desta etapa -->
+    <div class="stage-actions" role="group" aria-label="Ações da etapa 8">
+      <button class="btn" data-open="modal-perigos-8">Análise de perigos</button>
+      <button class="btn" data-open="modal-acoes-8">Ações (Monitoramento, Corretivas, Verificação)</button>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Análise de Perigos / Avaliação de Risco (Etapa 8)
+       ================================ -->
+  <div class="modal" id="modal-perigos-8" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-perigos-8">
+      <header class="modal-header">
+        <h3 id="titulo-perigos-8">Etapa 8 — Análise de Perigos e Avaliação de Risco</h3>
+        <button class="close" data-close="modal-perigos-8" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Perigos potenciais -->
+        <section aria-labelledby="sec8-perigos">
+          <h4 id="sec8-perigos">Perigos potenciais</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Categoria</th>
+                  <th>Exemplos</th>
+                  <th>Consequência</th>
+                  <th>Controles previstos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Biológicos</strong></td>
+                  <td>Perda de integridade (microvazamentos/selagem danificada); contaminação cruzada por pragas/ambiente sujo</td>
+                  <td>Perda de esterilidade comercial; risco ao consumidor</td>
+                  <td>Inspeção e <em>hold</em> de avariados; limpeza do PDV; controle de pragas; remoção de unidades estufadas/vazando</td>
+                </tr>
+                <tr>
+                  <td><strong>Químicos</strong></td>
+                  <td>Odor/taints por coarmazenagem com químicos; migração agravada por calor/luz; resíduos de limpeza no PDV/veículos</td>
+                  <td>Risco toxicológico/organoléptico; não conformidade</td>
+                  <td>Segregação de químicos; exposição afastada de calor/sol; SSOP de limpeza/liberação</td>
+                </tr>
+                <tr>
+                  <td><strong>Físicos</strong></td>
+                  <td>Perfurações/impactos; farpas de pallets; vidro de luminárias; sujeira/poeira</td>
+                  <td>Risco físico e perda de integridade</td>
+                  <td>Pallets/luminárias protegidos; boas práticas de manuseio; filmes e proteção de cantos; higiene de gôndolas</td>
+                </tr>
+                <tr>
+                  <td><strong>Fraude/Integridade</strong></td>
+                  <td>Violação de lacres; alteração de datas; desvio/reenvasamento indevido</td>
+                  <td>Rastreabilidade comprometida; risco regulatório</td>
+                  <td>Controles de acesso; conferência de lacres/documentos; reconciliação de lotes; auditorias em PDV</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="small-note">
+            Fundamentação: não há etapa posterior que elimine perigos introduzidos no PDV; a segurança depende de
+            integridade de embalagem, condições de exposição, higiene e rastreabilidade — controles via PRPs e, conforme risco, oPRPs.
+          </p>
+        </section>
+
+        <!-- PRPs / Procedimentos -->
+        <section aria-labelledby="sec8-prps">
+          <h4 id="sec8-prps">PRPs / Procedimentos de Rotina (nesta etapa)</h4>
+          <ul class="checklist">
+            <li><strong>Integridade de embalagem:</strong> inspeção visual em recebimento e gôndola; segregação imediata de vazados/estufados/danificados.</li>
+            <li><strong>Exposição adequada:</strong> afastar de calor/luz solar/umidade/odores; evitar empilhamento excessivo; gôndolas limpas.</li>
+            <li><strong>FEFO e rastreabilidade:</strong> organização por validade; registros de lotes por movimentação.</li>
+            <li><strong>Controle de pragas e limpeza:</strong> rotinas e registros; prevenção de coarmazenagem com insumos químicos.</li>
+            <li><strong>Gestão de devoluções:</strong> critérios claros para retorno/hold; embalagem íntegra e documentação de lote.</li>
+          </ul>
+        </section>
+
+        <!-- Árvore de decisão -->
+        <section aria-labelledby="sec8-arvore">
+          <h4 id="sec8-arvore">Árvore de Decisão Codex/NACMCF</h4>
+          <div class="decision-tree">
+            <p><strong>Perigo crítico avaliado:</strong> perda de integridade da embalagem no PDV.</p>
+            <ol>
+              <li><strong>P1.</strong> Existem medidas de controle nesta etapa?
+                <div class="answer ok">Sim — inspeções, segregação, controle de exposição, pragas e limpeza.</div>
+              </li>
+              <li><strong>P2.</strong> A etapa elimina/reduz a níveis aceitáveis?
+                <div class="answer warn">Não — controles são preventivos/detectivos; não há reesterilização.</div>
+              </li>
+              <li><strong>P3.</strong> Pode ocorrer/aumentar a níveis inaceitáveis?
+                <div class="answer ok">Sim — danos físicos, calor/luz, manuseio inadequado.</div>
+              </li>
+              <li><strong>P4.</strong> Há etapa posterior que elimine/reduza o perigo?
+                <div class="answer warn">Não — produto segue ao consumidor; classificar como <em>oPRPs/PRPs</em>.</div>
+              </li>
+            </ol>
+            <div class="decision-outcome">
+              <strong>Conclusão:</strong> <span class="badge">Não é PCC</span> — controle por <em>oPRPs/PRPs</em>.
+            </div>
+          </div>
+        </section>
+
+        <!-- Limites críticos -->
+        <section aria-labelledby="sec8-lc">
+          <h4 id="sec8-lc">Limites críticos</h4>
+          <p>Não aplicável (sem PCC). Estabelecer <em>critérios de PRP/oPRP</em> como:</p>
+          <ul class="bullets">
+            <li><strong>Integridade:</strong> ausência de vazamentos/estufamento; taxa de avaria ≤ meta (ex.: ≤0,2%/lote em PDV).</li>
+            <li><strong>Exposição:</strong> gôndolas limpas e secas; evitar calor/luz direta; proibição de coarmazenagem com químicos/odorizantes.</li>
+            <li><strong>Rastreabilidade:</strong> registros completos de lote/validade nas movimentações de PDV e devoluções.</li>
+          </ul>
+        </section>
+
+        <!-- Registros -->
+        <section aria-labelledby="sec8-registros">
+          <h4 id="sec8-registros">Registros associados</h4>
+          <ul class="bullets">
+            <li>Checklist de PDV (integridade de gôndolas, limpeza, pragas, exposição, FEFO).</li>
+            <li>Relatórios de avarias e segregações (<em>hold</em>), com destino e causa raiz.</li>
+            <li>Logs de rastreabilidade por lote, devoluções e reconciliação com expedições.</li>
+            <li>Registro de reclamações de clientes/consumidores e acompanhamento (CAPA).</li>
+            <li>Planos e relatórios de <em>mock recall</em> e, quando aplicável, recalls reais.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Ações (Monitoramento, Corretivas, Verificação) (Etapa 8)
+       ================================ -->
+  <div class="modal" id="modal-acoes-8" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-acoes-8">
+      <header class="modal-header">
+        <h3 id="titulo-acoes-8">Etapa 8 — Monitoramento, Ações Corretivas e Verificação</h3>
+        <button class="close" data-close="modal-acoes-8" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Plano de Monitoramento (oPRPs/PRPs) -->
+        <section aria-labelledby="sec8-monitoramento">
+          <h4 id="sec8-monitoramento">Plano de Monitoramento (oPRPs/PRPs)</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th><th>Método</th><th>Frequência</th><th>Responsável</th><th>Registro</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Integridade de embalagem em gôndola</td>
+                  <td>Inspeção visual + checklist</td>
+                  <td>Diária</td>
+                  <td>Equipe de loja</td>
+                  <td>Checklist de integridade</td>
+                </tr>
+                <tr>
+                  <td>Condições de exposição</td>
+                  <td>Rondas (calor/luz/umidade/odores)</td>
+                  <td>Diária</td>
+                  <td>Equipe de loja</td>
+                  <td>Ronda de exposição</td>
+                </tr>
+                <tr>
+                  <td>Controle de pragas e limpeza</td>
+                  <td>Mapa de iscas + inspeção de sinais</td>
+                  <td>Semanal/Mensal</td>
+                  <td>Terceiro/Loja</td>
+                  <td>Relatórios de pragas</td>
+                </tr>
+                <tr>
+                  <td>FEFO em PDV</td>
+                  <td>Conferência de validades e rotação</td>
+                  <td>Diária</td>
+                  <td>Equipe de loja</td>
+                  <td>Registro de rotação</td>
+                </tr>
+                <tr>
+                  <td>Rastreabilidade e devoluções</td>
+                  <td>Checagem de lote/validade na devolução</td>
+                  <td>Por evento</td>
+                  <td>Loja / Distribuidor</td>
+                  <td>Formulário de devolução</td>
+                </tr>
+                <tr>
+                  <td>Reclamações de mercado</td>
+                  <td>Registro e classificação (gravidade/causa)</td>
+                  <td>Contínuo + revisão mensal</td>
+                  <td>SAC / Qualidade</td>
+                  <td>Banco de reclamações</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="small-note"><strong>Siglas:</strong> PDV = Ponto de Venda; PRP = Programa de Pré-Requisito; oPRP = PRP Operacional; FEFO = <em>First Expire, First Out</em>; CAPA = <em>Corrective and Preventive Action</em>.</p>
+        </section>
+
+        <!-- Ações Corretivas -->
+        <section aria-labelledby="sec8-corretivas">
+          <h4 id="sec8-corretivas">Ações Corretivas</h4>
+          <ul class="bullets">
+            <li><strong>Unidades danificadas/estufadas/vazando:</strong> retirar de gôndola; segregar e identificar; avaliar lote/fornecedor; destinar conforme POP.</li>
+            <li><strong>Exposição inadequada (calor/luz/odores):</strong> corrigir disposição; remover fontes de calor/odores; avaliar impacto na qualidade.</li>
+            <li><strong>Falhas de FEFO/rastreabilidade:</strong> reconciliação de lotes; ajustar sistema; treinamento e CAPA.</li>
+            <li><strong>Quebra de lacre/alteração de datas:</strong> bloquear lote em PDV; investigar com distribuidor; comunicar autoridade se aplicável.</li>
+            <li><strong>Reclamação crítica de consumidor:</strong> ativar procedimento de avaliação de risco; ampliar amostragem; considerar <em>recall</em> conforme critérios do APPCC e legislação brasileira.</li>
+          </ul>
+        </section>
+
+        <!-- Verificação -->
+        <section aria-labelledby="sec8-verificacao">
+          <h4 id="sec8-verificacao">Procedimentos de Verificação</h4>
+          <ul class="bullets">
+            <li><strong>Mock recall</strong> periódico para testar rastreabilidade “fabricante → distribuidor → PDV → consumidor”.</li>
+            <li><strong>Auditorias em PDV</strong> e distribuidores: integridade de gôndolas, limpeza, pragas, FEFO e documentação.</li>
+            <li><strong>Análise de tendências</strong> de avarias, devoluções e reclamações; implementação de CAPAs.</li>
+            <li><strong>Revisão do APPCC</strong> com dados pós-mercado e atualização de critérios de aceitação.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =======================================================
+     ETAPA 9 – Consumo (Uso Doméstico e Boas Práticas do Consumidor)
+     -------------------------------------------------------
+     Observações:
+     - Mantém o padrão estrutural/semântico das etapas anteriores
+     - Para leite UHT, NÃO há PCC aqui (fora do controle direto da indústria);
+       foco em PRPs de comunicação ao consumidor, integridade da embalagem
+       e instruções de armazenamento/uso pós-abertura.
+     ======================================================= -->
+<section id="etapa-9" class="stage-card" aria-labelledby="titulo-etapa-9">
+  <div class="stage-header">
+    <h2 id="titulo-etapa-9">9. Consumo (Uso Doméstico e Boas Práticas do Consumidor)</h2>
+    <span class="stage-tag">Etapa 9</span>
+  </div>
+
+  <div class="stage-body">
+    <p><strong>Descrição do processo:</strong> O produto chega ao consumidor final íntegro e pronto para consumo
+      em <em>temperatura ambiente</em>. Após a abertura da embalagem, recomenda-se <em>refrigeração</em> e consumo
+      em prazo indicado no rótulo. Boas práticas domésticas incluem higiene das mãos/utensílios, proteção contra
+      luz/umidade/odores e evitar contaminação cruzada. A indústria assegura <em>instruções claras no rótulo</em>,
+      <em>lote/validade</em> visíveis e dispositivos de <em>evidência de violação</em> (quando aplicável).</p>
+
+    <div class="ref-list">
+      <strong>Referências-chave desta etapa</strong>
+      <ul>
+        <li>Codex — princípios gerais de higiene e orientação ao consumidor.</li>
+        <li>ISO 22000 — comunicação externa, informação de produto e rastreabilidade.</li>
+        <li>ISO/TS 22002-1 — PRPs: rotulagem, reclamações, gestão pós-mercado (no âmbito da organização).</li>
+      </ul>
+    </div>
+
+    <!-- Botões que abrem os modais desta etapa -->
+    <div class="stage-actions" role="group" aria-label="Ações da etapa 9">
+      <button class="btn" data-open="modal-perigos-9">Análise de perigos</button>
+      <button class="btn" data-open="modal-acoes-9">Ações (Monitoramento, Corretivas, Verificação)</button>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Análise de Perigos / Avaliação de Risco (Etapa 9)
+       ================================ -->
+  <div class="modal" id="modal-perigos-9" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-perigos-9">
+      <header class="modal-header">
+        <h3 id="titulo-perigos-9">Etapa 9 — Análise de Perigos e Avaliação de Risco</h3>
+        <button class="close" data-close="modal-perigos-9" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Perigos potenciais -->
+        <section aria-labelledby="sec9-perigos">
+          <h4 id="sec9-perigos">Perigos potenciais</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Categoria</th>
+                  <th>Exemplos</th>
+                  <th>Consequência</th>
+                  <th>Controles previstos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Biológicos</strong></td>
+                  <td>Contaminação pós-abertura (utensílios/superfícies/mãos); conservação inadequada (não refrigerar após abrir)</td>
+                  <td>Perda de esterilidade comercial; crescimento microbiano; deterioração</td>
+                  <td><strong>PRPs de comunicação:</strong> instruções de “refrigerar após abrir” e prazo de consumo; educação do consumidor; embalagem com tampa/vedação confiável</td>
+                </tr>
+                <tr>
+                  <td><strong>Químicos</strong></td>
+                  <td>Exposição a odores/voláteis na geladeira; armazenamento próximo a químicos domésticos</td>
+                  <td>Ofensas sensoriais; risco toxicológico</td>
+                  <td>Orientação de armazenamento seguro (longe de químicos/odores); embalagem fechada corretamente</td>
+                </tr>
+                <tr>
+                  <td><strong>Físicos</strong></td>
+                  <td>Fragmentos por abertura indevida; sujeiras/poeira; corpos estranhos por má conservação</td>
+                  <td>Risco físico e contaminação</td>
+                  <td>Instruções claras de abertura/fechamento; descarte de embalagens danificadas</td>
+                </tr>
+                <tr>
+                  <td><strong>Integridade/Fraude</strong></td>
+                  <td>Violação do lacre antes da compra; alteração de datas em pontos informais</td>
+                  <td>Risco à saúde; perda de rastreabilidade</td>
+                  <td>Dispositivos de evidência de violação; datação/lote legíveis; orientação para não consumir unidades violadas</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="small-note">
+            Fundamentação: depois da abertura, a segurança depende do <em>armazenamento doméstico adequado</em>,
+            higiene no manuseio e observância do rótulo. Não há etapa posterior que elimine perigos introduzidos
+            no uso doméstico; tratam-se de controles de <em>comunicação e instrução</em> ao usuário.
+          </p>
+        </section>
+
+        <!-- PRPs / Procedimentos -->
+        <section aria-labelledby="sec9-prps">
+          <h4 id="sec9-prps">PRPs / Procedimentos de Rotina (nesta etapa)</h4>
+          <ul class="checklist">
+            <li><strong>Rotulagem clara:</strong> “conservar em local fresco e seco”; “após aberto, manter refrigerado” e prazo de consumo conforme validação.</li>
+            <li><strong>Rastreabilidade visível:</strong> lote e validade legíveis no painel principal ou topo.</li>
+            <li><strong>Integridade:</strong> dispositivos de evidência de violação quando aplicável; instruções de abertura/fechamento.</li>
+            <li><strong>Educação do consumidor:</strong> FAQ/site/QR code com boas práticas e perguntas comuns.</li>
+            <li><strong>Canal de contato:</strong> SAC para dúvidas/reclamações com nº de lote e data.</li>
+          </ul>
+        </section>
+
+        <!-- Árvore de decisão -->
+        <section aria-labelledby="sec9-arvore">
+          <h4 id="sec9-arvore">Árvore de Decisão Codex/NACMCF</h4>
+          <div class="decision-tree">
+            <p><strong>Perigo avaliado:</strong> contaminação pós-abertura por armazenamento inadequado.</p>
+            <ol>
+              <li><strong>P1.</strong> Existem medidas de controle nesta etapa?
+                <div class="answer ok">Sim — instruções de rotulagem, educação, embalagem com boa vedação.</div>
+              </li>
+              <li><strong>P2.</strong> A etapa elimina/reduz a níveis aceitáveis?
+                <div class="answer warn">Não — controles são orientativos; a eliminação não ocorre aqui.</div>
+              </li>
+              <li><strong>P3.</strong> Pode ocorrer/aumentar a níveis inaceitáveis?
+                <div class="answer ok">Sim — se não refrigerar após abrir ou houver más práticas domésticas.</div>
+              </li>
+              <li><strong>P4.</strong> Há etapa posterior que elimine/reduza o perigo?
+                <div class="answer warn">Não — consumo é a etapa final; classifica-se como PRPs de comunicação.</div>
+              </li>
+            </ol>
+            <div class="decision-outcome">
+              <strong>Conclusão:</strong> <span class="badge">Não é PCC</span> — controle por <em>PRPs de comunicação</em> ao consumidor.
+            </div>
+          </div>
+        </section>
+
+        <!-- Limites críticos -->
+        <section aria-labelledby="sec9-lc">
+          <h4 id="sec9-lc">Limites críticos</h4>
+          <p>Não aplicável (sem PCC). Estabelecer <em>critérios de PRP</em> para rotulagem e comunicação:</p>
+          <ul class="bullets">
+            <li><strong>Clareza de instruções:</strong> presença obrigatória de “refrigerar após abrir” e prazo de consumo.</li>
+            <li><strong>Legibilidade:</strong> contraste/tamanho mínimo para lote/validade; posição consistente.</li>
+            <li><strong>Integridade:</strong> ausência de defeitos de impressão/lacre; amostragem por lote.</li>
+          </ul>
+        </section>
+
+        <!-- Registros -->
+        <section aria-labelledby="sec9-registros">
+          <h4 id="sec9-registros">Registros associados</h4>
+          <ul class="bullets">
+            <li>Arte-final aprovada do rótulo e histórico de versões.</li>
+            <li>Registros de liberação de impressão/legibilidade (amostragem por lote).</li>
+            <li>Banco de dúvidas/reclamações do SAC com análise de tendência (armazenamento, gosto, vazamentos).</li>
+            <li>Relatórios de <em>mock recall</em> envolvendo lotes em consumo.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================
+       Modal: Ações (Monitoramento, Corretivas, Verificação) (Etapa 9)
+       ================================ -->
+  <div class="modal" id="modal-acoes-9" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="titulo-acoes-9">
+      <header class="modal-header">
+        <h3 id="titulo-acoes-9">Etapa 9 — Monitoramento, Ações Corretivas e Verificação</h3>
+        <button class="close" data-close="modal-acoes-9" aria-label="Fechar">×</button>
+      </header>
+      <div class="modal-content">
+        <!-- Plano de Monitoramento (PRPs de comunicação e pós-mercado) -->
+        <section aria-labelledby="sec9-monitoramento">
+          <h4 id="sec9-monitoramento">Plano de Monitoramento (PRPs de Comunicação/Pós-mercado)</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th><th>Método</th><th>Frequência</th><th>Responsável</th><th>Registro</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Clareza e legibilidade do rótulo</td>
+                  <td>Inspeção amostral (checklist de rotulagem)</td>
+                  <td>Por lote</td>
+                  <td>Qualidade/Regulatório</td>
+                  <td>Checklist de rotulagem</td>
+                </tr>
+                <tr>
+                  <td>Instruções de conservação pós-abertura</td>
+                  <td>Revisão de texto/idioma/posicionamento</td>
+                  <td>Por revisão de arte</td>
+                  <td>Marketing/Regulatório</td>
+                  <td>Registro de versão de rótulo</td>
+                </tr>
+                <tr>
+                  <td>Reclamações relacionadas a uso doméstico</td>
+                  <td>Classificação (armazenagem, sabor, vazamento)</td>
+                  <td>Contínuo + revisão mensal</td>
+                  <td>SAC/Qualidade</td>
+                  <td>Banco de reclamações</td>
+                </tr>
+                <tr>
+                  <td>Educação do consumidor</td>
+                  <td>QR/FAQ ativos, conteúdo atualizado</td>
+                  <td>Trimestral</td>
+                  <td>Qualidade/Marketing</td>
+                  <td>Registro de publicações</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="small-note"><strong>Siglas:</strong> PRP = Programa de Pré-Requisito; SAC = Serviço de Atendimento ao Consumidor; FAQ = Perguntas Frequentes.</p>
+        </section>
+
+        <!-- Ações Corretivas -->
+        <section aria-labelledby="sec9-corretivas">
+          <h4 id="sec9-corretivas">Ações Corretivas</h4>
+          <ul class="bullets">
+            <li><strong>Reclamações recorrentes de conservação:</strong> revisar destaque/posicionamento das instruções; reforçar comunicação (QR/FAQ); avaliar necessidade de mudanças de embalagem.</li>
+            <li><strong>Legibilidade inadequada:</strong> corrigir arte (tamanho/contraste); bloqueio de novos lotes até ajuste; comunicação a distribuidores quando aplicável.</li>
+            <li><strong>Violação de integridade reportada:</strong> investigação com rastreabilidade; avaliar recall conforme gravidade; comunicação transparente ao consumidor/autoridades.</li>
+          </ul>
+        </section>
+
+        <!-- Verificação -->
+        <section aria-labelledby="sec9-verificacao">
+          <h4 id="sec9-verificacao">Procedimentos de Verificação</h4>
+          <ul class="bullets">
+            <li><strong>Mock recall</strong> envolvendo pontos de consumo (amostra de clientes/PDVs).</li>
+            <li><strong>Avaliação de usabilidade do rótulo</strong> (testes de compreensão) e revisão anual.</li>
+            <li><strong>Revisão de tendências</strong> do SAC para orientar melhoria do APPCC e educação ao consumidor.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+</main>
+
+  <!-- ===========================================
+       Rodapé
+       =========================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 2025 • HACCP Leite UHT • Protótipo de portfólio</p>
+    </div>
+  </footer>
+
+  <!-- ======================
+       CONTROLLER A11y (JS)
+       ====================== -->
+  <script>
+    (function(){
+      const body = document.body;
+      let lastTrigger = null;
+
+      const FOCUSABLE = [
+        'a[href]', 'button:not([disabled])', 'input:not([disabled])',
+        'select:not([disabled])', 'textarea:not([disabled])',
+        '[tabindex]:not([tabindex="-1"])'
+      ].join(',');
+
+      function lockScroll(){ body.style.overflow = 'hidden'; }
+      function unlockScroll(){ body.style.overflow = ''; }
+
+      function trapFocus(modal){
+        const focusables = Array.from(modal.querySelectorAll(FOCUSABLE));
+        if(focusables.length === 0){
+          const dlg = modal.querySelector('.modal-dialog');
+          if(dlg){ dlg.setAttribute('tabindex','-1'); dlg.focus(); }
+          return;
+        }
+        const first = focusables[0];
+        const last  = focusables[focusables.length - 1];
+        function onKey(e){
+          if(e.key !== 'Tab') return;
+          if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+          else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+        }
+        modal.addEventListener('keydown', onKey);
+        (modal.querySelector('.close') || first).focus();
+        modal.__trapHandler = onKey;
+      }
+
+      function releaseFocus(modal){
+        if(modal.__trapHandler){ modal.removeEventListener('keydown', modal.__trapHandler); modal.__trapHandler=null; }
+      }
+
+      function openModal(id, trigger){
+        const m = document.getElementById(id);
+        if(!m) return;
+        lastTrigger = trigger || document.activeElement;
+        m.setAttribute('aria-hidden','false');
+        lockScroll();
+        trapFocus(m);
+      }
+
+      function closeModal(id){
+        const m = document.getElementById(id);
+        if(!m) return;
+        m.setAttribute('aria-hidden','true');
+        releaseFocus(m);
+        unlockScroll();
+        if(lastTrigger && document.contains(lastTrigger)){ lastTrigger.focus(); }
+      }
+
+      // Delegation: abrir/fechar
+      document.addEventListener('click', function(e){
+        const openBtn = e.target.closest('[data-open]');
+        if(openBtn){
+          e.preventDefault();
+          openModal(openBtn.getAttribute('data-open'), openBtn);
+          return;
+        }
+        const closeBtn = e.target.closest('[data-close]');
+        if(closeBtn){
+          e.preventDefault();
+          closeModal(closeBtn.getAttribute('data-close'));
+          return;
+        }
+        // clique no overlay fecha
+        const overlay = e.target.classList.contains('modal') ? e.target : null;
+        if(overlay && overlay.getAttribute('aria-hidden') === 'false'){
+          closeModal(overlay.id);
+        }
+      });
+
+      // ESC fecha modais visíveis
+      document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape'){
+          document.querySelectorAll('.modal[aria-hidden="false"]').forEach(m => closeModal(m.id));
+        }
+      });
+    })();
+	
+	
+  </script>
+</body>
+</html>
