@@ -1,4 +1,6 @@
 # HACCP *Hazard Analysis and Critical Control Points*– Leite UHT (Brasil) 
+👉 **[Abrir protótipo HACCP](https://carloaugusto.github.io/HACCP-prototipo-leite/)**
+
 ---
 ## Protótipo Interativo 
 Protótipo **HTML/CSS/JS** para demonstrar a aplicação do **HACCP** em leite UHT:
