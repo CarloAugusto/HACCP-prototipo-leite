@@ -1,13 +1,14 @@
 # Pasta `/assets`
 
 Esta pasta contém os **recursos auxiliares** (estilos e scripts) usados pelo arquivo principal `index.html`.  
-Enquanto a raiz do projeto é **HTML puro**, aqui ficam os arquivos que garantem **estilo visual (CSS**)** e **interatividade(JavaScript**)**.
+
+Enquanto a raiz do projeto é **HTML puro**, aqui ficam os arquivos que garantem **estilo visual (*CSS*)** e **interatividade(*JavaScript*)**.
 
 ---
 
 ## Arquivos
 
-###`style.css`
+`style.css`
 
 Arquivo de **estilos globais** que define o **Design Pack** do projeto:
 
@@ -29,7 +30,7 @@ O `style.css` garante a **identidade visual** consistente e acessível do HACCP 
 
 ---
 
-### `script.js`
+`script.js`
 
 Arquivo de **JavaScript** responsável pela **interatividade**:
 - Controle de **modais**:
